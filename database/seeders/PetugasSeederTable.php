@@ -19,7 +19,6 @@ class PetugasSeederTable extends Seeder
                 'email'    => 'petugas@example.com', 
                 'password' => Hash::make('petugas123'),
                 'no_hp' => '088765423456',
-                'nik' => '1171041909580005',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],

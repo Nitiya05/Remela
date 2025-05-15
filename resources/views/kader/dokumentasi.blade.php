@@ -33,15 +33,22 @@
                             <td class="px-6 py-3">{{ \Carbon\Carbon::parse($item->waktu)->format('d M Y H:i') }}</td>
                             <td class="px-6 py-3">{{ $item->lokasi }}</td>
                             <td class="px-6 py-3">
-                                <div class="flex flex-wrap gap-2">
-                                    @if ($item->fotos->count() > 0)
-                                        <img src="{{ asset('storage/' . $item->fotos->first()->path) }}" alt="Foto" class="w-16 h-16 object-cover rounded-lg shadow">
-                                        @if ($item->fotos->count() > 1)
-                                            <span class="text-xs text-gray-500">{{ $item->fotos->count() }} foto lainnya</span>
-                                        @endif
-                                    @endif
-                                </div>
-                            </td>
+    <div class="flex flex-wrap gap-2">
+        @if ($item->fotos->count() > 0)
+            @foreach($item->fotos->take(1) as $foto)
+                <img src="{{ Storage::url($foto->path) }}" 
+                     alt="Foto Dokumentasi"
+                     class="w-16 h-16 object-cover rounded-lg shadow"
+                     onerror="this.onerror=null;this.src='{{ asset('images/placeholder.jpg') }}'">
+            @endforeach
+            @if ($item->fotos->count() > 1)
+                <span class="text-xs text-gray-500">+{{ $item->fotos->count() - 1 }} foto</span>
+            @endif
+        @else
+            <span class="text-xs text-gray-500">No Image</span>
+        @endif
+    </div>
+</td>
                             <td class="px-6 py-3 flex justify-center items-center space-x-2 h-full">
                                 <!-- Tombol untuk melihat detail -->
                                 <button @click="showFullDetails = true; detailItem = {{ json_encode($item) }}" 

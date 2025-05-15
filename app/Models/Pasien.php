@@ -8,19 +8,7 @@ use Carbon\Carbon;
 class Pasien extends Model
 {
     protected $fillable = [
-        'user_id', // Tambahkan user_id ke fillable
-        'nama',
-        'nik',
-        'tanggal_lahir',
-        'umur',
-        'jenis_kelamin',
-        'alamat',
-        'email',
-        'no_hp',
-        'pendidikan_terakhir',
-        'pekerjaan',
-        'status_kawin',
-        'golongan_darah',
+        'user_id','nama','nik','tanggal_lahir','umur','jenis_kelamin','alamat','email','no_hp','pendidikan_terakhir','pekerjaan','status_kawin','golongan_darah',
     ];
 
     protected $table = 'pasiens';

@@ -21,7 +21,6 @@ class User extends Authenticatable
         'password',
         'nik',
         'role',
-        'pasien_id', // Tambahkan pasien_id agar bisa diisi
     ];
 
     /**
@@ -69,8 +68,12 @@ class User extends Authenticatable
     }
 
     public function petugas()
-{
-    return $this->hasOne(Petugas::class, 'user_id');
-}
-    
+    {
+        return $this->hasOne(Petugas::class, 'user_id');
+    }
+
+    public function admin()
+    {
+        return $this->hasOne(Admin::class);
+    }
 }

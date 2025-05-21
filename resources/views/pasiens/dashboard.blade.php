@@ -290,19 +290,29 @@
                             <div
                                 class="bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
                                 <div
-                                    class="px-4 py-3 border-b flex justify-between items-center 
-                        @if ($data->tekanan_darah_sistolik >= 160 || $data->tekanan_darah_diastolik >= 100) bg-red-50
-                        @elseif($data->tekanan_darah_sistolik >= 150 || $data->tekanan_darah_diastolik >= 90) bg-yellow-50
-                        @else bg-green-50 @endif">
+                                    class="px-4 py-3 border-b flex justify-between items-center
+                        @if (is_null($data->tekanan_darah_sistolik) || is_null($data->tekanan_darah_diastolik)) bg-gray-50
+                        @elseif ($data->tekanan_darah_sistolik >= 160 || $data->tekanan_darah_diastolik >= 100)
+                            bg-red-50
+                        @elseif ($data->tekanan_darah_sistolik >= 150 || $data->tekanan_darah_diastolik >= 90)
+                            bg-yellow-50
+                        @else
+                            bg-green-50 @endif">
                                     <h3 class="font-semibold text-gray-800">Tekanan Darah</h3>
                                     <span
-                                        class="px-2 py-1 text-xs rounded-full 
-                            @if ($data->tekanan_darah_sistolik >= 160 || $data->tekanan_darah_diastolik >= 100) bg-red-100 text-red-800
-                            @elseif($data->tekanan_darah_sistolik >= 150 || $data->tekanan_darah_diastolik >= 90) bg-yellow-100 text-yellow-800
-                            @else bg-green-100 text-green-800 @endif">
-                                        @if ($data->tekanan_darah_sistolik >= 160 || $data->tekanan_darah_diastolik >= 100)
+                                        class="px-2 py-1 text-xs rounded-full
+                            @if (is_null($data->tekanan_darah_sistolik) || is_null($data->tekanan_darah_diastolik)) bg-gray-100 text-gray-600
+                            @elseif ($data->tekanan_darah_sistolik >= 160 || $data->tekanan_darah_diastolik >= 100)
+                                bg-red-100 text-red-800
+                            @elseif ($data->tekanan_darah_sistolik >= 150 || $data->tekanan_darah_diastolik >= 90)
+                                bg-yellow-100 text-yellow-800
+                            @else
+                                bg-green-100 text-green-800 @endif">
+                                        @if (is_null($data->tekanan_darah_sistolik) || is_null($data->tekanan_darah_diastolik))
+                                            Tidak ada data
+                                        @elseif ($data->tekanan_darah_sistolik >= 160 || $data->tekanan_darah_diastolik >= 100)
                                             Hipertensi
-                                        @elseif($data->tekanan_darah_sistolik >= 150 || $data->tekanan_darah_diastolik >= 90)
+                                        @elseif ($data->tekanan_darah_sistolik >= 150 || $data->tekanan_darah_diastolik >= 90)
                                             Pra-Hipertensi
                                         @else
                                             Normal
@@ -313,18 +323,24 @@
                                 <div class="p-4">
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="text-gray-500">Nilai</span>
-                                        <span
-                                            class="font-bold">{{ $data->tekanan_darah_sistolik }}/{{ $data->tekanan_darah_diastolik }}
-                                            mmHg</span>
+                                        @if (is_null($data->tekanan_darah_sistolik) || is_null($data->tekanan_darah_diastolik))
+                                            <span class="font-bold text-gray-500">Tidak ada data</span>
+                                        @else
+                                            <span
+                                                class="font-bold">{{ $data->tekanan_darah_sistolik }}/{{ $data->tekanan_darah_diastolik }}
+                                                mmHg</span>
+                                        @endif
                                     </div>
 
                                     <div class="mt-3">
                                         <p class="text-sm font-medium text-gray-700 mb-1">Rekomendasi:</p>
                                         <p class="text-sm text-gray-600">
-                                            @if ($data->tekanan_darah_sistolik >= 160 || $data->tekanan_darah_diastolik >= 100)
+                                            @if (is_null($data->tekanan_darah_sistolik) || is_null($data->tekanan_darah_diastolik))
+                                                <i class="fas fa-info-circle text-gray-500 mr-1"></i> Data tidak tersedia
+                                            @elseif ($data->tekanan_darah_sistolik >= 160 || $data->tekanan_darah_diastolik >= 100)
                                                 <i class="fas fa-exclamation-circle text-red-500 mr-1"></i> Segera
                                                 konsultasi dokter
-                                            @elseif($data->tekanan_darah_sistolik >= 150 || $data->tekanan_darah_diastolik >= 90)
+                                            @elseif ($data->tekanan_darah_sistolik >= 150 || $data->tekanan_darah_diastolik >= 90)
                                                 <i class="fas fa-exclamation-triangle text-yellow-500 mr-1"></i> Kurangi
                                                 garam & periksa rutin
                                             @else
@@ -341,26 +357,34 @@
                                 </div>
                             </div>
 
-                            <!-- Gula Darah (Standar Lansia) -->
+                            <!-- Gula Darah Puasa (Standar Lansia) -->
                             <div
                                 class="bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
                                 <div
                                     class="px-4 py-3 border-b flex justify-between items-center 
-                        @if ($data->gula_darah >= 180) bg-red-50
+                        @if (is_null($data->gula_darah)) bg-gray-50
+                        @elseif($data->gula_darah >= 180) bg-red-50
                         @elseif($data->gula_darah >= 130) bg-yellow-50
-                        @else bg-green-50 @endif">
-                                    <h3 class="font-semibold text-gray-800">Gula Darah</h3>
+                        @elseif($data->gula_darah >= 70) bg-green-50
+                        @else bg-blue-50 @endif">
+                                    <h3 class="font-semibold text-gray-800">Gula Darah Puasa</h3>
                                     <span
-                                        class="px-2 py-1 text-xs rounded-full 
-                            @if ($data->gula_darah >= 180) bg-red-100 text-red-800
+                                        class="px-2 py-1 text-xs rounded-full
+                            @if (is_null($data->gula_darah)) bg-gray-100 text-gray-600
+                            @elseif($data->gula_darah >= 180) bg-red-100 text-red-800
                             @elseif($data->gula_darah >= 130) bg-yellow-100 text-yellow-800
-                            @else bg-green-100 text-green-800 @endif">
-                                        @if ($data->gula_darah >= 180)
+                            @elseif($data->gula_darah >= 70) bg-green-100 text-green-800
+                            @else bg-blue-100 text-blue-800 @endif">
+                                        @if (is_null($data->gula_darah))
+                                            Tidak ada data
+                                        @elseif($data->gula_darah >= 180)
                                             Tinggi
                                         @elseif($data->gula_darah >= 130)
                                             Waspada
-                                        @else
+                                        @elseif($data->gula_darah >= 70)
                                             Normal
+                                        @else
+                                            Rendah
                                         @endif
                                     </span>
                                 </div>
@@ -368,21 +392,28 @@
                                 <div class="p-4">
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="text-gray-500">Nilai</span>
-                                        <span class="font-bold">{{ $data->gula_darah }} mg/dL</span>
+                                        <span class="font-bold">
+                                            {{ is_null($data->gula_darah) ? 'Tidak ada data' : $data->gula_darah . ' mg/dL' }}
+                                        </span>
                                     </div>
 
                                     <div class="mt-3">
                                         <p class="text-sm font-medium text-gray-700 mb-1">Rekomendasi:</p>
                                         <p class="text-sm text-gray-600">
-                                            @if ($data->gula_darah >= 180)
+                                            @if (is_null($data->gula_darah))
+                                                <i class="fas fa-info-circle text-gray-500 mr-1"></i> Data tidak tersedia
+                                            @elseif($data->gula_darah >= 180)
                                                 <i class="fas fa-exclamation-circle text-red-500 mr-1"></i> Segera
                                                 konsultasi dokter
                                             @elseif($data->gula_darah >= 130)
                                                 <i class="fas fa-exclamation-triangle text-yellow-500 mr-1"></i> Kurangi
                                                 gula & perbanyak serat
-                                            @else
+                                            @elseif($data->gula_darah >= 70)
                                                 <i class="fas fa-check-circle text-green-500 mr-1"></i> Pertahankan pola
                                                 makan sehat
+                                            @else
+                                                <i class="fas fa-exclamation-triangle text-blue-500 mr-1"></i> Konsumsi
+                                                makanan manis secara seimbang
                                             @endif
                                         </p>
                                     </div>
@@ -394,24 +425,34 @@
                                 </div>
                             </div>
 
-                            <!-- Kolesterol -->
+                            <!-- Kolesterol Total (Standar Lansia) -->
                             <div
                                 class="bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
                                 <div
-                                    class="px-4 py-3 border-b flex justify-between items-center 
-                        @if ($data->kolesterol >= 240) bg-red-50
-                        @elseif($data->kolesterol >= 200) bg-yellow-50
-                        @else bg-green-50 @endif">
-                                    <h3 class="font-semibold text-gray-800">Kolesterol</h3>
+                                    class="px-4 py-3 border-b flex justify-between items-center
+                        @if (is_null($data->kolesterol)) bg-gray-50
+                        @elseif ($data->kolesterol >= 240)
+                            bg-red-50
+                        @elseif ($data->kolesterol >= 200)
+                            bg-yellow-50
+                        @else
+                            bg-green-50 @endif">
+                                    <h3 class="font-semibold text-gray-800">Kolesterol Total</h3>
                                     <span
-                                        class="px-2 py-1 text-xs rounded-full 
-                            @if ($data->kolesterol >= 240) bg-red-100 text-red-800
-                            @elseif($data->kolesterol >= 200) bg-yellow-100 text-yellow-800
-                            @else bg-green-100 text-green-800 @endif">
-                                        @if ($data->kolesterol >= 240)
+                                        class="px-2 py-1 text-xs rounded-full
+                            @if (is_null($data->kolesterol)) bg-gray-100 text-gray-600
+                            @elseif ($data->kolesterol >= 240)
+                                bg-red-100 text-red-800
+                            @elseif ($data->kolesterol >= 200)
+                                bg-yellow-100 text-yellow-800
+                            @else
+                                bg-green-100 text-green-800 @endif">
+                                        @if (is_null($data->kolesterol))
+                                            Tidak ada data
+                                        @elseif ($data->kolesterol >= 240)
                                             Tinggi
-                                        @elseif($data->kolesterol >= 200)
-                                            Borderline
+                                        @elseif ($data->kolesterol >= 200)
+                                            Batas tinggi
                                         @else
                                             Normal
                                         @endif
@@ -421,16 +462,22 @@
                                 <div class="p-4">
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="text-gray-500">Nilai</span>
-                                        <span class="font-bold">{{ $data->kolesterol }} mg/dL</span>
+                                        @if (is_null($data->kolesterol))
+                                            <span class="font-bold text-gray-500">Tidak ada data</span>
+                                        @else
+                                            <span class="font-bold">{{ $data->kolesterol }} mg/dL</span>
+                                        @endif
                                     </div>
 
                                     <div class="mt-3">
                                         <p class="text-sm font-medium text-gray-700 mb-1">Rekomendasi:</p>
                                         <p class="text-sm text-gray-600">
-                                            @if ($data->kolesterol >= 240)
+                                            @if (is_null($data->kolesterol))
+                                                <i class="fas fa-info-circle text-gray-500 mr-1"></i> Data tidak tersedia
+                                            @elseif ($data->kolesterol >= 240)
                                                 <i class="fas fa-exclamation-circle text-red-500 mr-1"></i> Segera
                                                 konsultasi dokter
-                                            @elseif($data->kolesterol >= 200)
+                                            @elseif ($data->kolesterol >= 200)
                                                 <i class="fas fa-exclamation-triangle text-yellow-500 mr-1"></i> Kurangi
                                                 lemak & olahraga teratur
                                             @else
@@ -447,19 +494,27 @@
                                 </div>
                             </div>
 
-                            <!-- Asam Urat -->
+                            <!-- Asam Urat (Standar Lansia) -->
                             <div
                                 class="bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
                                 <div
-                                    class="px-4 py-3 border-b flex justify-between items-center 
-                        @if (($userGender == 'L' && $data->asam_urat > 7.0) || ($userGender == 'P' && $data->asam_urat > 6.0)) bg-red-50
-                        @else bg-green-50 @endif">
+                                    class="px-4 py-3 border-b flex justify-between items-center
+                        @if (is_null($data->asam_urat)) bg-gray-50
+                        @elseif (($userGender == 'L' && $data->asam_urat > 7.0) || ($userGender == 'P' && $data->asam_urat > 6.0))
+                            bg-red-50
+                        @else
+                            bg-green-50 @endif">
                                     <h3 class="font-semibold text-gray-800">Asam Urat</h3>
                                     <span
-                                        class="px-2 py-1 text-xs rounded-full 
-                            @if (($userGender == 'L' && $data->asam_urat > 7.0) || ($userGender == 'P' && $data->asam_urat > 6.0)) bg-red-100 text-red-800
-                            @else bg-green-100 text-green-800 @endif">
-                                        @if (($userGender == 'L' && $data->asam_urat > 7.0) || ($userGender == 'P' && $data->asam_urat > 6.0))
+                                        class="px-2 py-1 text-xs rounded-full
+                            @if (is_null($data->asam_urat)) bg-gray-100 text-gray-600
+                            @elseif (($userGender == 'L' && $data->asam_urat > 7.0) || ($userGender == 'P' && $data->asam_urat > 6.0))
+                                bg-red-100 text-red-800
+                            @else
+                                bg-green-100 text-green-800 @endif">
+                                        @if (is_null($data->asam_urat))
+                                            Tidak ada data
+                                        @elseif (($userGender == 'L' && $data->asam_urat >+ 7.0) || ($userGender == 'P' && $data->asam_urat > 6.0))
                                             Tinggi
                                         @else
                                             Normal
@@ -470,13 +525,19 @@
                                 <div class="p-4">
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="text-gray-500">Nilai</span>
-                                        <span class="font-bold">{{ $data->asam_urat }} mg/dL</span>
+                                        @if (is_null($data->asam_urat))
+                                            <span class="font-bold text-gray-500">Tidak ada data</span>
+                                        @else
+                                            <span class="font-bold">{{ $data->asam_urat }} mg/dL</span>
+                                        @endif
                                     </div>
 
                                     <div class="mt-3">
                                         <p class="text-sm font-medium text-gray-700 mb-1">Rekomendasi:</p>
                                         <p class="text-sm text-gray-600">
-                                            @if (($userGender == 'L' && $data->asam_urat > 7.0) || ($userGender == 'P' && $data->asam_urat > 6.0))
+                                            @if (is_null($data->asam_urat))
+                                                <i class="fas fa-info-circle text-gray-500 mr-1"></i> Data tidak tersedia
+                                            @elseif (($userGender == 'L' && $data->asam_urat > 7.0) || ($userGender == 'P' && $data->asam_urat > 6.0))
                                                 <i class="fas fa-exclamation-circle text-red-500 mr-1"></i> Hindari makanan
                                                 tinggi purin
                                             @else
@@ -493,19 +554,27 @@
                                 </div>
                             </div>
 
-                            <!-- Lingkar Perut -->
+                            <!-- Lingkar Perut (Standar Lansia) -->
                             <div
                                 class="bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
                                 <div
                                     class="px-4 py-3 border-b flex justify-between items-center 
-                        @if (($userGender == 'L' && $data->lingkar_perut >= 90) || ($userGender == 'P' && $data->lingkar_perut >= 80)) bg-red-50
-                        @else bg-green-50 @endif">
+                        @if (is_null($data->lingkar_perut)) bg-gray-50
+                        @elseif (($userGender == 'L' && $data->lingkar_perut >= 90) || ($userGender == 'P' && $data->lingkar_perut >= 80))
+                            bg-red-50
+                        @else
+                            bg-green-50 @endif">
                                     <h3 class="font-semibold text-gray-800">Lingkar Perut</h3>
                                     <span
                                         class="px-2 py-1 text-xs rounded-full 
-                            @if (($userGender == 'L' && $data->lingkar_perut >= 90) || ($userGender == 'P' && $data->lingkar_perut >= 80)) bg-red-100 text-red-800
-                            @else bg-green-100 text-green-800 @endif">
-                                        @if (($userGender == 'L' && $data->lingkar_perut >= 90) || ($userGender == 'P' && $data->lingkar_perut >= 80))
+                            @if (is_null($data->lingkar_perut)) bg-gray-100 text-gray-600
+                            @elseif (($userGender == 'L' && $data->lingkar_perut >= 90) || ($userGender == 'P' && $data->lingkar_perut >= 80))
+                                bg-red-100 text-red-800
+                            @else
+                                bg-green-100 text-green-800 @endif">
+                                        @if (is_null($data->lingkar_perut))
+                                            Tidak ada data
+                                        @elseif (($userGender == 'L' && $data->lingkar_perut >= 90) || ($userGender == 'P' && $data->lingkar_perut >= 80))
                                             Berisiko
                                         @else
                                             Normal
@@ -516,13 +585,17 @@
                                 <div class="p-4">
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="text-gray-500">Nilai</span>
-                                        <span class="font-bold">{{ $data->lingkar_perut }} cm</span>
+                                        <span class="font-bold">
+                                            {{ is_null($data->lingkar_perut) ? 'Tidak ada data' : number_format($data->lingkar_perut, 1) . ' cm' }}
+                                        </span>
                                     </div>
 
                                     <div class="mt-3">
                                         <p class="text-sm font-medium text-gray-700 mb-1">Rekomendasi:</p>
                                         <p class="text-sm text-gray-600">
-                                            @if (($userGender == 'L' && $data->lingkar_perut >= 90) || ($userGender == 'P' && $data->lingkar_perut >= 80))
+                                            @if (is_null($data->lingkar_perut))
+                                                <i class="fas fa-info-circle text-gray-500 mr-1"></i> Data tidak tersedia
+                                            @elseif (($userGender == 'L' && $data->lingkar_perut >= 90) || ($userGender == 'P' && $data->lingkar_perut >= 80))
                                                 <i class="fas fa-exclamation-circle text-red-500 mr-1"></i> Kurangi kalori
                                                 & perbanyak aktivitas
                                             @else
@@ -544,18 +617,22 @@
                                 class="bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
                                 <div
                                     class="px-4 py-3 border-b flex justify-between items-center 
-                        @if ($data->bmi >= 30) bg-red-50
+                        @if (is_null($data->bmi)) bg-gray-50
+                        @elseif($data->bmi >= 30) bg-red-50
                         @elseif($data->bmi >= 27) bg-yellow-50
                         @elseif($data->bmi < 22) bg-blue-50
                         @else bg-green-50 @endif">
                                     <h3 class="font-semibold text-gray-800">Indeks Massa Tubuh</h3>
                                     <span
                                         class="px-2 py-1 text-xs rounded-full 
-                            @if ($data->bmi >= 30) bg-red-100 text-red-800
+                            @if (is_null($data->bmi)) bg-gray-100 text-gray-600
+                            @elseif($data->bmi >= 30) bg-red-100 text-red-800
                             @elseif($data->bmi >= 27) bg-yellow-100 text-yellow-800
                             @elseif($data->bmi < 22) bg-blue-100 text-blue-800
                             @else bg-green-100 text-green-800 @endif">
-                                        @if ($data->bmi >= 30)
+                                        @if (is_null($data->bmi))
+                                            Tidak ada data
+                                        @elseif($data->bmi >= 30)
                                             Obesitas
                                         @elseif($data->bmi >= 27)
                                             Gemuk
@@ -570,13 +647,17 @@
                                 <div class="p-4">
                                     <div class="flex justify-between items-center mb-2">
                                         <span class="text-gray-500">Nilai</span>
-                                        <span class="font-bold">{{ number_format($data->bmi, 1) }}</span>
+                                        <span class="font-bold">
+                                            {{ is_null($data->bmi) ? 'Tidak ada data' : number_format($data->bmi, 1) }}
+                                        </span>
                                     </div>
 
                                     <div class="mt-3">
                                         <p class="text-sm font-medium text-gray-700 mb-1">Rekomendasi:</p>
                                         <p class="text-sm text-gray-600">
-                                            @if ($data->bmi >= 30)
+                                            @if (is_null($data->bmi))
+                                                <i class="fas fa-info-circle text-gray-500 mr-1"></i> Data tidak tersedia
+                                            @elseif($data->bmi >= 30)
                                                 <i class="fas fa-exclamation-circle text-red-500 mr-1"></i> Segera
                                                 konsultasi dokter
                                             @elseif($data->bmi >= 27)
@@ -966,165 +1047,166 @@
             </div>
 
             <!-- Dokumentasi Section -->
-<div class="bg-white p-6 shadow-lg rounded-xl mt-8">
-    <div class="text-center mb-8">
-        <h2 class="text-2xl md:text-3xl font-bold text-sky-800 mb-2">Galeri Kegiatan</h2>
-        <div class="w-20 h-1 bg-blue-500 mx-auto"></div>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        @foreach ($dokumentasi as $doc)
-        <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-            <!-- Thumbnail -->
-            <div class="relative">
-                @if ($doc->fotos->count() > 0)
-                    <img 
-                        src="{{ asset('storage/' . $doc->fotos->first()->path) }}" 
-                        alt="{{ $doc->nama_kegiatan }}"
-                        class="w-full h-48 object-cover cursor-pointer"
-                        onclick="openModal('modal-{{ $doc->id }}')"
-                    >
-                @else
-                    <div class="w-full h-48 bg-gray-100 flex items-center justify-center">
-                        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                @endif
-                
-                <!-- Tanggal Kegiatan -->
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                    <span class="text-white text-sm font-medium">
-                        {{ $doc->created_at->format('d M Y') }}
-                    </span>
+            <div class="bg-white p-6 shadow-lg rounded-xl mt-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl md:text-3xl font-bold text-sky-800 mb-2">Galeri Kegiatan</h2>
+                    <div class="w-20 h-1 bg-blue-500 mx-auto"></div>
                 </div>
-            </div>
 
-            <!-- Konten -->
-            <div class="p-4">
-                <h3 class="text-lg font-semibold text-gray-800 mb-1">{{ $doc->nama_kegiatan }}</h3>
-                <p class="text-sm text-gray-600 line-clamp-2">{{ $doc->deskripsi }}</p>
-                
-                <!-- Tombol Lihat Detail -->
-                <button 
-                    onclick="openModal('modal-{{ $doc->id }}')"
-                    class="mt-3 text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center"
-                >
-                    Lihat Detail
-                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </button>
-            </div>
-        </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    @foreach ($dokumentasi as $doc)
+                        <div
+                            class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                            <!-- Thumbnail -->
+                            <div class="relative">
+                                @if ($doc->fotos->count() > 0)
+                                    <img src="{{ asset('storage/' . $doc->fotos->first()->path) }}"
+                                        alt="{{ $doc->nama_kegiatan }}" class="w-full h-48 object-cover cursor-pointer"
+                                        onclick="openModal('modal-{{ $doc->id }}')">
+                                @else
+                                    <div class="w-full h-48 bg-gray-100 flex items-center justify-center">
+                                        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                @endif
 
-        <!-- Modal untuk setiap dokumen -->
-        <div id="modal-{{ $doc->id }}" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 hidden">
-            <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                <!-- Header Modal -->
-                <div class="sticky top-0 bg-white p-4 border-b flex justify-between items-center">
-                    <h3 class="text-xl font-bold text-gray-800">{{ $doc->nama_kegiatan }}</h3>
-                    <button onclick="closeModal('modal-{{ $doc->id }}')" class="text-gray-500 hover:text-gray-700">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-                
-                <!-- Body Modal -->
-                <div class="p-6">
-                    @if ($doc->fotos->count() > 0)
-                    <div class="mb-6">
-                        <img 
-                            src="{{ asset('storage/' . $doc->fotos->first()->path) }}" 
-                            alt="{{ $doc->nama_kegiatan }}"
-                            class="w-full h-auto max-h-[60vh] object-contain rounded-lg mx-auto"
-                        >
-                    </div>
-                    @endif
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div class="bg-gray-50 p-3 rounded-lg">
-                            <p class="text-sm text-gray-500">Tanggal Kegiatan</p>
-                            <p class="font-medium">{{ $doc->created_at->format('d F Y') }}</p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded-lg">
-                            <p class="text-sm text-gray-500">Lokasi</p>
-                            <p class="font-medium">{{ $doc->lokasi ?? 'Tidak dicantumkan' }}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="prose max-w-none">
-                        <h4 class="text-lg font-semibold mb-2">Deskripsi Kegiatan</h4>
-                        <p class="text-gray-700 whitespace-pre-line">{{ $doc->deskripsi }}</p>
-                        
-                        @if($doc->fotos->count() > 1)
-                        <div class="mt-6">
-                            <h4 class="text-lg font-semibold mb-3">Galeri Foto</h4>
-                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                @foreach($doc->fotos as $foto)
-                                <div class="aspect-square overflow-hidden rounded-lg">
-                                    <img 
-                                        src="{{ asset('storage/' . $foto->path) }}" 
-                                        alt="Foto dokumentasi {{ $doc->nama_kegiatan }}"
-                                        class="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
-                                        onclick="window.open('{{ asset('storage/' . $foto->path) }}', '_blank')"
-                                    >
+                                <!-- Tanggal Kegiatan -->
+                                <div
+                                    class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                                    <span class="text-white text-sm font-medium">
+                                        {{ $doc->created_at->format('d M Y') }}
+                                    </span>
                                 </div>
-                                @endforeach
+                            </div>
+
+                            <!-- Konten -->
+                            <div class="p-4">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-1">{{ $doc->nama_kegiatan }}</h3>
+                                <p class="text-sm text-gray-600 line-clamp-2">{{ $doc->deskripsi }}</p>
+
+                                <!-- Tombol Lihat Detail -->
+                                <button onclick="openModal('modal-{{ $doc->id }}')"
+                                    class="mt-3 text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center">
+                                    Lihat Detail
+                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
-                        @endif
+
+                        <!-- Modal untuk setiap dokumen -->
+                        <div id="modal-{{ $doc->id }}"
+                            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 hidden">
+                            <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                                <!-- Header Modal -->
+                                <div class="sticky top-0 bg-white p-4 border-b flex justify-between items-center">
+                                    <h3 class="text-xl font-bold text-gray-800">{{ $doc->nama_kegiatan }}</h3>
+                                    <button onclick="closeModal('modal-{{ $doc->id }}')"
+                                        class="text-gray-500 hover:text-gray-700">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Body Modal -->
+                                <div class="p-6">
+                                    @if ($doc->fotos->count() > 0)
+                                        <div class="mb-6">
+                                            <img src="{{ asset('storage/' . $doc->fotos->first()->path) }}"
+                                                alt="{{ $doc->nama_kegiatan }}"
+                                                class="w-full h-auto max-h-[60vh] object-contain rounded-lg mx-auto">
+                                        </div>
+                                    @endif
+
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                        <div class="bg-gray-50 p-3 rounded-lg">
+                                            <p class="text-sm text-gray-500">Tanggal Kegiatan</p>
+                                            <p class="font-medium">{{ $doc->created_at->format('d F Y') }}</p>
+                                        </div>
+                                        <div class="bg-gray-50 p-3 rounded-lg">
+                                            <p class="text-sm text-gray-500">Lokasi</p>
+                                            <p class="font-medium">{{ $doc->lokasi ?? 'Tidak dicantumkan' }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="prose max-w-none">
+                                        <h4 class="text-lg font-semibold mb-2">Deskripsi Kegiatan</h4>
+                                        <p class="text-gray-700 whitespace-pre-line">{{ $doc->deskripsi }}</p>
+
+                                        @if ($doc->fotos->count() > 1)
+                                            <div class="mt-6">
+                                                <h4 class="text-lg font-semibold mb-3">Galeri Foto</h4>
+                                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                                    @foreach ($doc->fotos as $foto)
+                                                        <div class="aspect-square overflow-hidden rounded-lg">
+                                                            <img src="{{ asset('storage/' . $foto->path) }}"
+                                                                alt="Foto dokumentasi {{ $doc->nama_kegiatan }}"
+                                                                class="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
+                                                                onclick="window.open('{{ asset('storage/' . $foto->path) }}', '_blank')">
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <!-- Footer Modal -->
+                                <div class="sticky bottom-0 bg-white p-4 border-t flex justify-end">
+                                    <button onclick="closeModal('modal-{{ $doc->id }}')"
+                                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                        Tutup
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                @if ($dokumentasi->isEmpty())
+                    <div class="text-center py-12">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                        <h3 class="mt-2 text-lg font-medium text-gray-900">Belum ada dokumentasi</h3>
+                        <p class="mt-1 text-gray-500">Tidak ada kegiatan yang terdokumentasi saat ini.</p>
                     </div>
-                </div>
-                
-                <!-- Footer Modal -->
-                <div class="sticky bottom-0 bg-white p-4 border-t flex justify-end">
-                    <button 
-                        onclick="closeModal('modal-{{ $doc->id }}')"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                        Tutup
-                    </button>
-                </div>
+                @endif
             </div>
-        </div>
-        @endforeach
-    </div>
 
-    @if($dokumentasi->isEmpty())
-    <div class="text-center py-12">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-        </svg>
-        <h3 class="mt-2 text-lg font-medium text-gray-900">Belum ada dokumentasi</h3>
-        <p class="mt-1 text-gray-500">Tidak ada kegiatan yang terdokumentasi saat ini.</p>
-    </div>
-    @endif
-</div>
+            <script>
+                // Fungsi untuk membuka modal
+                function openModal(modalId) {
+                    document.getElementById(modalId).classList.remove('hidden');
+                    document.body.style.overflow = 'hidden'; // Mencegah scroll di background
+                }
 
-<script>
-    // Fungsi untuk membuka modal
-    function openModal(modalId) {
-        document.getElementById(modalId).classList.remove('hidden');
-        document.body.style.overflow = 'hidden'; // Mencegah scroll di background
-    }
+                // Fungsi untuk menutup modal
+                function closeModal(modalId) {
+                    document.getElementById(modalId).classList.add('hidden');
+                    document.body.style.overflow = 'auto'; // Mengembalikan scroll
+                }
 
-    // Fungsi untuk menutup modal
-    function closeModal(modalId) {
-        document.getElementById(modalId).classList.add('hidden');
-        document.body.style.overflow = 'auto'; // Mengembalikan scroll
-    }
+                // Tutup modal ketika klik di luar konten modal
+                window.onclick = function(event) {
+                    if (event.target.classList.contains('bg-black/80')) {
+                        event.target.classList.add('hidden');
+                        document.body.style.overflow = 'auto';
+                    }
+                }
+            </script>
 
-    // Tutup modal ketika klik di luar konten modal
-    window.onclick = function(event) {
-        if (event.target.classList.contains('bg-black/80')) {
-            event.target.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-    }
-</script>
-            
         </div>
     </div>
 

@@ -47,7 +47,7 @@ class PasienController extends Controller
                     ->orderBy('tanggal_rekam', 'desc')
                     ->get();
             }
-        
+
 
             // Riwayat bulan ini / terakhir
             $riwayatBulanIni = RekamMedisLansia::where('patient_id', $pasien->id)
@@ -349,6 +349,13 @@ class PasienController extends Controller
         return redirect()->route('pasiens.profile', Auth::id())->with('success', 'Profil berhasil diperbarui!');
     }
 
+    public function cekNik(Request $request)
+    {
+        $exists = Pasien::where('nik', $request->nik)->exists();
+        return response()->json(['exists' => $exists]);
+    }
+
+
     public function create()
     {
         return view('kader.data-pasien.create');
@@ -359,11 +366,11 @@ class PasienController extends Controller
         // Validasi input
         $request->validate([
             'nama' => 'required|string|max:255',
-            'nik' => 'required|string|max:16|unique:pasiens',
+            'nik' => 'required|digits:16|numeric|unique:pasiens,nik',
             'tanggal_lahir' => 'required|date',
             'jenis_kelamin' => 'required|string',
             'alamat' => 'required|string',
-            'email' => 'nullable|email|unique:users', // Pastikan email unik di tabel users
+            'email' => 'nullable|email|unique:users',
             'no_hp' => 'nullable|string|max:15',
             'pendidikan_terakhir' => 'nullable|string|max:255',
             'pekerjaan' => 'nullable|string|max:255',
@@ -371,16 +378,24 @@ class PasienController extends Controller
             'golongan_darah' => 'nullable|string|max:2',
         ]);
 
+        // Handle empty values
+        $pendidikan = $request->pendidikan_terakhir ?: '-';
+        $pekerjaan = $request->pekerjaan ?: '-';
+        $statusKawin = $request->status_kawin ?: '-';
+        $golonganDarah = $request->golongan_darah ?: '-';
+        $email = $request->email ?: null;
+        $noHp = $request->no_hp ?: '-';
+
         // Buat password default (misalnya, menggunakan NIK)
-        $password = Hash::make($request->nik); // Gunakan NIK sebagai password default
+        $password = Hash::make($request->nik);
 
         // Simpan data ke tabel `users`
         $user = User::create([
             'name' => $request->nama,
             'nik' => $request->nik,
-            'email' => $request->email,
-            'role' => 'pasien', // Set role sebagai pasien
-            'password' => $password, // Simpan password yang sudah di-hash
+            'email' => $email,
+            'role' => 'pasien',
+            'password' => $password,
         ]);
 
         // Hitung umur dari tanggal lahir
@@ -389,19 +404,19 @@ class PasienController extends Controller
 
         // Simpan data ke tabel `pasiens` dengan mengaitkan `user_id`
         Pasien::create([
-            'user_id' => $user->id, // Kaitkan dengan id user yang baru dibuat
+            'user_id' => $user->id,
             'nama' => $request->nama,
             'nik' => $request->nik,
             'tanggal_lahir' => $request->tanggal_lahir,
-            'umur' => $umur,  // Simpan umur yang sudah dihitung
+            'umur' => $umur,
             'jenis_kelamin' => $request->jenis_kelamin,
             'alamat' => $request->alamat,
-            'email' => $request->email,
-            'no_hp' => $request->no_hp,
-            'pendidikan_terakhir' => $request->pendidikan_terakhir,
-            'pekerjaan' => $request->pekerjaan,
-            'status_kawin' => $request->status_kawin,
-            'golongan_darah' => $request->golongan_darah,
+            'email' => $email,
+            'no_hp' => $noHp,
+            'pendidikan_terakhir' => $pendidikan,
+            'pekerjaan' => $pekerjaan,
+            'status_kawin' => $statusKawin,
+            'golongan_darah' => $golonganDarah,
         ]);
 
         return redirect()->route('kader.dataPasien')->with('success', 'Pasien berhasil ditambahkan!');
@@ -421,9 +436,16 @@ class PasienController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
-            'nik' => 'required|string|max:16',
+            'nik' => 'required|digits:16|numeric|unique:pasiens,nik,' . $id . ',id',
             'alamat' => 'required|string|max:255',
-            // validasi lainnya
+            'tanggal_lahir' => 'required|date',
+            'jenis_kelamin' => 'required|string|in:L,P',
+            'email' => 'nullable|email|unique:users,email,' . $id,
+            'no_hp' => 'nullable|string|max:15',
+            'pendidikan_terakhir' => 'nullable|string|max:255',
+            'pekerjaan' => 'nullable|string|max:255',
+            'status_kawin' => 'nullable|string|max:255',
+            'golongan_darah' => 'nullable|string|max:2',
         ]);
 
         $pasien = Pasien::with('user')->findOrFail($id);
@@ -444,15 +466,15 @@ class PasienController extends Controller
     }
 
     public function destroy(Pasien $pasien)
-{
-    $userId = $pasien->user_id;
+    {
+        $userId = $pasien->user_id;
 
-    $pasien->delete(); // akan otomatis hapus juga jika user dihapus (jika arah sebaliknya)
+        $pasien->delete(); // akan otomatis hapus juga jika user dihapus (jika arah sebaliknya)
 
-    User::find($userId)?->delete();
+        User::find($userId)?->delete();
 
-    return redirect()->route('kader.dataPasien')->with('success', 'Pasien berhasil dihapus');
-}
+        return redirect()->route('kader.dataPasien')->with('success', 'Pasien berhasil dihapus');
+    }
 
 
     public function downloadLaporan($id)

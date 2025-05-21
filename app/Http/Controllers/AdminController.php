@@ -43,14 +43,6 @@ class AdminController extends Controller
             'color' => 'blue'
         ],
         [
-            'type' => 'system_update',
-            'version' => '2.1.0',
-            'time' => now()->subDay(),
-            'icon' => 'check',
-            'color' => 'green'
-        ],
-        // Anda bisa menambahkan aktivitas lain seperti:
-        [
             'type' => 'new_patients',
             'count' => User::where('role', 'pasien')->whereDate('created_at', today())->count(),
             'time' => now()->subHours(5),

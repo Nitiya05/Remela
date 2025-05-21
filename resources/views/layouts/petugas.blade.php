@@ -1,29 +1,40 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Petugas</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/intro.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.1.0/introjs.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-
         .introjs-skipbutton {
-            font-size: 18px !important; /* Memperkecil ukuran font */
+            font-size: 18px !important;
+            /* Memperkecil ukuran font */
             position: absolute !important;
-            left: 170px !important; /* Menggeser ke kiri */
+            left: 170px !important;
+            /* Menggeser ke kiri */
         }
+
         /* Sembunyikan scrollbar di semua browser */
         .scrollbar-hide {
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE & Edge */
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE & Edge */
         }
+
         .scrollbar-hide::-webkit-scrollbar {
-            display: none; /* Chrome, Safari */
+            display: none;
+            /* Chrome, Safari */
         }
 
         /* Animasi untuk sidebar */
@@ -48,70 +59,94 @@
         }
     </style>
 </head>
+
 <body class="bg-gray-100">
     <div class="flex h-screen">
         <!-- Overlay untuk sidebar di mobile -->
         <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
         <!-- Sidebar -->
-        <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-sky-800 p-5 transform sidebar-transition -translate-x-full md:translate-x-0 z-50 overflow-y-auto scrollbar-hide"
-        data-intro="Ini adalah sidebar. Di sini Anda dapat mengakses menu navigasi."
-        data-step="1">
+        <aside id="sidebar"
+            class="fixed top-0 left-0 h-full w-64 bg-sky-800 p-5 transform sidebar-transition -translate-x-full md:translate-x-0 z-50 overflow-y-auto scrollbar-hide"
+            data-intro="Ini adalah sidebar. Di sini Anda dapat mengakses menu navigasi." data-step="1">
             <!-- Tombol Toggle untuk Mobile -->
-            <button id="sidebar-toggle" class="md:hidden absolute top-4 right-4 text-gray-600 focus:outline-none" onclick="toggleSidebar()">
+            <button id="sidebar-toggle" class="md:hidden absolute top-4 right-4 text-gray-600 focus:outline-none"
+                onclick="toggleSidebar()">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7">
+                    </path>
                 </svg>
             </button>
 
             <!-- Logo dan Profil -->
             <h1 class="text-2xl font-bold text-center text-white">REMELA</h1>
             <div class="flex justify-center mt-10">
-                <div id="profile-icon" class="bg-transparent border-2 border-cyan-600 w-20 h-20 rounded-full flex items-center justify-center">
+                <div id="profile-icon"
+                    class="bg-transparent border-2 border-cyan-600 w-20 h-20 rounded-full flex items-center justify-center">
                     <i class="fas fa-user text-cyan-600 text-3xl"></i> <!-- Ikon pengguna dari FontAwesome -->
                 </div>
             </div>
             <h1 class="text-3xl text-center font-bold sidebar-text text-white mt-4">
-                {{ $petugas->nama ?? 'Petugas Kesehatan' }} 
+                {{ $petugas->nama ?? 'Petugas Kesehatan' }}
             </h1>
 
             <!-- Navigasi -->
             <nav class="mt-8">
-                <a href="{{ route('petugas.dashboard') }}" 
+                <a href="{{ route('petugas.dashboard') }}"
                     class="flex items-center p-2 rounded-lg transition-all duration-300 ease-in-out hover:pl-5 hover:bg-sky-600
                     {{ request()->routeIs('petugas.dashboard') ? 'bg-sky-600 text-blue font-bold' : '' }}"
-                     data-intro="Klik di sini untuk melihat halaman utama." data-step="2">
+                    data-intro="Klik di sini untuk melihat halaman utama." data-step="2">
                     <img src="{{ asset('images/Ic_Beranda.png') }}" class="w-8 h-8 min-w-[32px]">
                     <span class="sidebar-text ml-2 text-xl text-white font-semibold">Dashboard</span>
                 </a>
-                <a href="{{ route('petugas.daftarKader') }}" 
+                <a href="{{ route('petugas.daftarKader') }}"
                     class="my-2 flex items-center p-2 rounded-lg transition-all duration-300 ease-in-out hover:pl-5 hover:bg-sky-600
                     {{ request()->routeIs('petugas.daftarKader') ? 'bg-sky-600 text-white font-bold' : '' }}"
-                     data-intro="Di sini Anda bisa melihat daftar kader." data-step="3">
+                    data-intro="Di sini Anda bisa melihat daftar kader." data-step="3">
                     <img src="{{ asset('images/Ic_DataPasien.png') }}" class="w-8 h-8 min-w-[32px]">
                     <span class="sidebar-text ml-2 text-xl text-white font-semibold">Daftar Kader</span>
                 </a>
-                <a href="{{ route('petugas.daftarPasien') }}" 
+                <a href="{{ route('petugas.daftarPasien') }}"
                     class="my-2 flex items-center p-2 rounded-lg transition-all duration-300 ease-in-out hover:pl-5 hover:bg-sky-600
                     {{ request()->routeIs('petugas.daftarPasien') ? 'bg-sky-600 text-white font-bold' : '' }}"
-                     data-intro="Di sini Anda bisa melihat daftar pasien." data-step="4">
+                    data-intro="Di sini Anda bisa melihat daftar pasien." data-step="4">
                     <img src="{{ asset('images/Ic_RekamMedis.png') }}" class="w-8 h-8 min-w-[32px]">
                     <span class="sidebar-text ml-2 text-xl text-white font-semibold">Daftar Pasien</span>
                 </a>
-                <a href="{{ route('petugas.laporan') }}" 
+                <a href="{{ route('petugas.laporan') }}"
                     class="my-2 flex items-center p-2 rounded-lg transition-all duration-300 ease-in-out hover:pl-5 hover:bg-sky-600
-                    {{ request()->routeIs('petugas.laporan') ? 'bg-sky-600 text-white font-bold' : '' }}"
-                     data-intro="Di sini Anda bisa melihat laporan data pasien." data-step="5">
-                    <img src="{{ asset('images/Ic_Jadwal.png') }}" class="w-8 h-8 min-w-[32px]">
+   {{ request()->routeIs('petugas.laporan') ? 'bg-sky-600 text-white font-bold' : '' }}"
+                    data-intro="Di sini Anda bisa melihat laporan data pasien." data-step="5">
+
+                    <!-- Heroicon: ClipboardDocumentListIcon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="w-8 h-8 min-w-[32px] text-white">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12h6m-6 4h6m-3-12a2.25 2.25 0 00-2.25 2.25V6h4.5V4.25A2.25 2.25 0 0012 2zM4.5 6.75A2.25 2.25 0 016.75 4.5h1.5v1.125A2.25 2.25 0 0010.5 8h3a2.25 2.25 0 002.25-2.25V4.5h1.5a2.25 2.25 0 012.25 2.25v12A2.25 2.25 0 0117.25 21H6.75A2.25 2.25 0 014.5 18.75v-12z" />
+                    </svg>
+
                     <span class="sidebar-text ml-2 text-xl text-white font-semibold">Catatan</span>
                 </a>
-                
+
+                <a href="{{ route('petugas.editProfil') }}"
+                    class="my-2 flex items-center p-2 rounded-lg transition-all duration-300 ease-in-out hover:pl-5 hover:bg-cyan-600 
+   {{ request()->routeIs('kader.laporan') ? 'bg-cyan-600 text-white font-bold' : '' }}"
+                    data-intro="Di sini Anda bisa mengedit profil atau mengubah password anda." data-step="8">
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 min-w-[32px] text-white" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M5.121 17.804A4.992 4.992 0 0112 15c1.657 0 3.157.804 4.121 2.804M12 12a5 5 0 100-10 5 5 0 000 10z" />
+                    </svg>
+
+                    <span class="sidebar-text ml-2 text-xl text-white font-semibold">Edit Profil</span>
+                </a>
+
                 <!-- Tombol Logout -->
-                <a href="{{ route('logout') }}" 
+                <a href="{{ route('logout') }}"
                     class="flex justify-center items-center p-2 my-10 hover:text-yellow-100 bg-red-600 transition-all duration-300 ease-in-out hover:pl-5 hover:shadow-lg rounded-full"
                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                    data-intro="Tombol Logout. Klik untuk keluar dari aplikasi."
-                    data-step="6">
+                    data-intro="Tombol Logout. Klik untuk keluar dari aplikasi." data-step="6">
                     <img src="{{ asset('images/ic_keluar.png') }}" class="w-8 h-8 min-w-[32px]">
                     <span class="sidebar-text ml-2 text-xl text-white font-semibold">Keluar</span>
                 </a>
@@ -120,13 +155,16 @@
                 </form>
             </nav>
         </aside>
-        
+
         <!-- Main Content -->
-        <main id="main-content" class="flex-1 p-6 ml-0 md:ml-64 transition-all duration-300 ease-in-out overflow-y-auto mb-10">
+        <main id="main-content"
+            class="flex-1 p-6 ml-0 md:ml-64 transition-all duration-300 ease-in-out overflow-y-auto mb-10">
             <!-- Tombol Toggle untuk Mobile -->
-            <button id="sidebar-toggle" class="md:hidden fixed top-4 left-4 text-gray-600 focus:outline-none z-50" onclick="toggleSidebar()">
+            <button id="sidebar-toggle" class="md:hidden fixed top-4 left-4 text-gray-600 focus:outline-none z-50"
+                onclick="toggleSidebar()">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7">
+                    </path>
                 </svg>
             </button>
 
@@ -134,14 +172,16 @@
             @yield('content')
 
             <!-- Tombol Panduan -->
-            <div onclick="startTour()" class="fixed bottom-8 right-8 z-50 bg-cyan-700 text-white px-4 py-3 rounded-full shadow-xl hover:bg-cyan-800 transition-all cursor-pointer flex items-center">
+            <div onclick="startTour()"
+                class="fixed bottom-8 right-8 z-50 bg-cyan-700 text-white px-4 py-3 rounded-full shadow-xl hover:bg-cyan-800 transition-all cursor-pointer flex items-center">
                 <i class="fas fa-question-circle mr-2"></i>
                 <span>Panduan</span>
             </div>
         </main>
 
         <!-- Footer -->
-        <footer id="footer" class="bg-[#eaf0f7] p-4 text-black font-semibold shadow-md fixed bottom-0 w-full transition-all duration-300 ease-in-out md:pl-64">
+        <footer id="footer"
+            class="bg-[#eaf0f7] p-4 text-black font-semibold shadow-md fixed bottom-0 w-full transition-all duration-300 ease-in-out md:pl-64">
             <span class="ml-4">© 2025 Aplikasi REMELA | Hak Cipta Dilindungi</span>
         </footer>
     </div>
@@ -181,4 +221,5 @@
         });
     </script>
 </body>
+
 </html>

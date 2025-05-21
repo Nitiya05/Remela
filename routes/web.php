@@ -10,15 +10,29 @@ use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\RekamMedisLansiaController;
 use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\DokumentasiController;
+use Illuminate\Support\Facades\Auth;
 
+
+use App\Models\Jadwal;
+use App\Models\Dokumentasi;
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    if (Auth::check()) {
+        return redirect()->route(Auth::user()->role . '.dashboard');
+    }
+    
+    return view('welcome', [
+        'jadwal' => Jadwal::orderBy('tanggal', 'desc')->take(5)->get(), 
+        'dokumentasi' => Dokumentasi::with('fotos')
+                            ->orderBy('created_at', 'desc')
+                            ->take(8)
+                            ->get()
+    ]);
+})->middleware(\App\Http\Middleware\NoCacheHeaders::class);
 
 // Route untuk menampilkan form login
 Route::get('login', function () {
-    return view('auth.login'); // Ganti dengan lokasi view login kamu
+    return view('auth.login');
 })->name('auth.login');
 
 // Route untuk menangani proses login (POST)
@@ -29,7 +43,7 @@ Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
 
 // Dashboard sesuai role
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\NoCacheHeaders::class])->group(function () {
     Route::get('/pasien/dashboard', [PasienController::class, 'index'])->name('pasien.dashboard');
     Route::get('/kader/dashboard', [KaderController::class, 'index'])->name('kader.dashboard');
     Route::get('/petugas/dashboard', [PetugasController::class, 'index'])->name('petugas.dashboard');
@@ -38,7 +52,6 @@ Route::middleware(['auth'])->group(function () {
 
 // Rute khusus admin untuk manajemen pengguna
 Route::middleware(['auth', AdminMiddleware::class])->group(function () {
-    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/manajemenpengguna', [AdminController::class, 'manajemenPengguna'])->name('admin.manajemenpengguna');
 
     // CRUD Pengguna
@@ -54,7 +67,6 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
 // Rute khusus kader
 Route::middleware(['auth'])->group(function () {
     // Dashboard dan menu utama
-    Route::get('/dashboard', [KaderController::class, 'index'])->name('kader.dashboard');
     Route::get('/data-pasien', [KaderController::class, 'dataPasien'])->name('kader.dataPasien');
     Route::get('/rekam-medis', [KaderController::class, 'rekamMedis'])->name('kader.rekamMedis');
     Route::get('/jadwal', [KaderController::class, 'jadwal'])->name('kader.jadwal');
@@ -66,6 +78,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{pasien}/edit', [PasienController::class, 'edit'])->name('kader.data-pasien.edit');
         Route::put('/{pasien}', [PasienController::class, 'update'])->name('kader.data-pasien.update');
         Route::delete('/{pasien}', [PasienController::class, 'destroy'])->name('kader.data-pasien.destroy');
+        Route::get('/pasiens/cek-nik', [PasienController::class, 'cekNik'])->name('pasiens.cekNik');
     });
 
     // CRUD Rekam Medis Lansia
@@ -95,6 +108,10 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}', [DokumentasiController::class, 'destroy'])->name('kader.dokumentasi.destroy');
         Route::delete('/foto/{foto}', [DokumentasiController::class, 'destroyFoto'])->name('kader.dokumentasi.destroyFoto');
     });
+
+    // EditProfil
+    Route::get('/editProfil', [KaderController::class, 'editProfil'])->name('kader.editProfil');
+    Route::put('/profile/update', [KaderController::class, 'updateProfile'])->name('kader.profile.update');
 });
 
 // Rute untuk CRUD Pasien
@@ -106,14 +123,17 @@ Route::get('/pasien/cetak-pdf', [PasienController::class, 'cetakPdf'])->name('pa
 Route::get('/cetak-laporan/{id}', [PasienController::class, 'downloadLaporan'])->name('download.laporan');
 
 //Rute untuk CRUD Petugas Kesehatan
-Route::prefix('petugas')->group(function () {
+Route::prefix('petugas')->middleware(['auth', 'role:petugas'])->group(function () {
     Route::get('/daftar-kader', [PetugasController::class, 'daftarKader'])->name('petugas.daftarKader');
     Route::get('/daftar-pasien', [PetugasController::class, 'daftarPasien'])->name('petugas.daftarPasien');
     Route::get('/daftar-pasien/{id}', [PetugasController::class, 'show'])->name('petugas.rekamMedis.show');
     Route::get('/laporan', [PetugasController::class, 'createLaporan'])->name('petugas.laporan');
     Route::post('/laporan/simpan', [PetugasController::class, 'simpanLaporan'])->name('petugas.simpanLaporan');
     Route::get('/rekam-medis-terakhir/{pasienId}', [PetugasController::class, 'getRekamMedisTerakhir']);
-});
+    Route::get('/editProfil', [PetugasController::class, 'editProfil'])->name('petugas.editProfil');
+    Route::put('/profile/update', [PetugasController::class, 'updateProfile'])->name('petugas.profile.update');
+    Route::get('/petugas/cetak-pdf/{id}', [PetugasController::class, 'generatePDF'])->name('petugas.cetakPdf');
 
+});
 
 Route::get('/petugas/rekam-medis/{id}', [RekamMedisLansiaController::class, 'show'])->name('rekam-medis.show');

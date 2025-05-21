@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class PetugasController extends Controller
 {
@@ -102,14 +104,6 @@ class PetugasController extends Controller
                 'icon' => 'document-text',
                 'color' => 'blue',
                 'time' => now()
-            ],
-            [
-                'type' => 'system_update',
-                'version' => '2.1.0',
-                'message' => 'Versi terbaru sistem',
-                'icon' => 'refresh',
-                'color' => 'purple',
-                'time' => now()->subDays(2)
             ]
         ];
 
@@ -165,26 +159,34 @@ class PetugasController extends Controller
         return view('petugas.daftar-pasien', compact('pasiens'));
     }
 
-    public function createLaporan()
+    public function createLaporan(Request $request)
     {
-        // Ambil data pasien dengan rekam medis terakhir (prioritas: bulan ini -> bulan lalu -> terakhir)
-        $pasiens = Pasien::with(['rekamMedisTerakhir' => function($query) {
-            $now = now();
-            $bulanLalu = $now->copy()->subMonth();
-            
+        $search = $request->input('search');
+        $now = now();
+        $bulanLalu = $now->copy()->subMonth();
+
+        $pasiens = Pasien::with(['rekamMedisTerakhir' => function ($query) use ($now, $bulanLalu) {
             $query->orderByRaw("
-                CASE
-                    WHEN MONTH(tanggal_rekam) = ? AND YEAR(tanggal_rekam) = ? THEN 1
-                    WHEN MONTH(tanggal_rekam) = ? AND YEAR(tanggal_rekam) = ? THEN 2
-                    ELSE 3
-                END
-            ", [
-                $now->month, $now->year,
-                $bulanLalu->month, $bulanLalu->year
+            CASE
+                WHEN MONTH(tanggal_rekam) = ? AND YEAR(tanggal_rekam) = ? THEN 1
+                WHEN MONTH(tanggal_rekam) = ? AND YEAR(tanggal_rekam) = ? THEN 2
+                ELSE 3
+            END
+        ", [
+                $now->month,
+                $now->year,
+                $bulanLalu->month,
+                $bulanLalu->year
             ])
-            ->orderBy('tanggal_rekam', 'desc');
+                ->orderBy('tanggal_rekam', 'desc');
         }])
-        ->paginate(15);
+            ->when($search, function ($query, $search) {
+                return $query->where(function ($q) use ($search) {
+                    $q->where('nama', 'like', "%{$search}%")
+                        ->orWhere('nik', 'like', "%{$search}%");
+                });
+            })
+            ->paginate(15);
 
         return view('petugas.laporan', compact('pasiens'));
     }
@@ -218,33 +220,38 @@ class PetugasController extends Controller
     }
 
     public function show($id, Request $request)
-    { // Ambil data rekam medis berdasarkan ID
-        $record = RekamMedisLansia::with('pasien')->find($id);
-
-        if (!$record) {
-            return redirect()->route('rekam-medis-lansia.index')->with('error', 'Rekam medis tidak ditemukan.');
+    {
+        try {
+            $pasien = Pasien::findOrFail($id);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()->route('petugas.daftarPasien')
+                ->with('error', 'Pasien tidak ditemukan');
         }
 
-        // Ambil data pasien terkait
-        $pasien = $record->pasien;
+        $query = RekamMedisLansia::where('patient_id', $id)
+            ->orderBy('tanggal_rekam', 'desc');
 
-        // Query untuk mengambil rekam medis berdasarkan ID pasien
-        $query = RekamMedisLansia::with('pasien')->where('patient_id', $pasien->id);
+        // Deteksi apakah ada filter
+        $filtered = false;
 
-        // Filter berdasarkan bulan jika ada
-        if ($request->has('bulan') && $request->bulan != '') {
+        if ($request->filled('bulan')) {
             $query->whereMonth('tanggal_rekam', $request->bulan);
+            $filtered = true;
         }
 
-        // Filter berdasarkan tahun jika ada
-        if ($request->has('tahun') && $request->tahun != '') {
+        if ($request->filled('tahun')) {
             $query->whereYear('tanggal_rekam', $request->tahun);
+            $filtered = true;
         }
 
-        // Ambil data rekam medis
+        // Jika tidak difilter, hanya ambil 3 data terakhir
+        if (!$filtered) {
+            $query->limit(3);
+        }
+
         $records = $query->get();
 
-        // Siapkan data untuk grafik
+        // Persiapan data chart
         $labels = [];
         $tekananDarahSistolik = [];
         $tekananDarahDiastolik = [];
@@ -253,20 +260,30 @@ class PetugasController extends Controller
         $asamUrat = [];
         $imt = [];
         $lingkarPerut = [];
+        $beratBadan = [];
+        $tinggiBadan = [];
 
         foreach ($records as $record) {
             $labels[] = \Carbon\Carbon::parse($record->tanggal_rekam)->format('d M Y');
-            $tekananDarahSistolik[] = $record->tekanan_darah_sistolik;
-            $tekananDarahDiastolik[] = $record->tekanan_darah_diastolik;
-            $gulaDarah[] = $record->gula_darah;
-            $kolesterol[] = $record->kolesterol;
-            $asamUrat[] = $record->asam_urat;
-            $imt[] = $record->imt;
-            $lingkarPerut[] = $record->lingkar_perut;
+            $tekananDarahSistolik[] = $record->tekanan_darah_sistolik ?? null;
+            $tekananDarahDiastolik[] = $record->tekanan_darah_diastolik ?? null;
+            $gulaDarah[] = $record->gula_darah ?? null;
+            $kolesterol[] = $record->kolesterol ?? null;
+            $asamUrat[] = $record->asam_urat ?? null;
+            $imt[] = $record->bmi ?? null;
+            $lingkarPerut[] = $record->lingkar_perut ?? null;
+            $beratBadan[] = $record->berat_badan ?? null;
+            $tinggiBadan[] = $record->tinggi_badan ?? null;
         }
 
-        // Tampilkan view dengan data yang diperlukan
+        $availableYears = RekamMedisLansia::selectRaw('YEAR(tanggal_rekam) as year')
+            ->where('patient_id', $id)
+            ->groupBy('year')
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+
         return view('petugas.rekamMedis.show', compact(
+            'pasien',
             'records',
             'labels',
             'tekananDarahSistolik',
@@ -276,7 +293,103 @@ class PetugasController extends Controller
             'asamUrat',
             'imt',
             'lingkarPerut',
-            'pasien'
-        ));
+            'beratBadan',
+            'tinggiBadan',
+            'availableYears'
+        ))->with([
+            'selectedBulan' => $request->bulan,
+            'selectedTahun' => $request->tahun
+        ]);
+    }
+
+
+    public function editProfil()
+    {
+        $petugas = Auth::user()->petugas; // Pastikan relasi 'petugas' ada di model User
+        return view('petugas.edit-profil', compact('petugas')); // Sesuaikan dengan path view Anda
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = User::find(Auth::id());
+        $petugas = $user->petugas;
+
+        // Validasi data
+        $rules = [
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'no_hp' => 'nullable|string|max:15',
+        ];
+
+        // Validasi password jika diisi
+        if ($request->filled('password')) {
+            $rules['current_password'] = ['required', function ($attribute, $value, $fail) use ($user) {
+                if (!Hash::check($value, $user->password)) {
+                    $fail('Password saat ini tidak sesuai');
+                }
+            }];
+            $rules['password'] = ['required', 'confirmed', Password::min(8)];
+        }
+
+        $validatedData = $request->validate($rules);
+
+        DB::beginTransaction();
+        try {
+            // Update data user
+            $user->email = $validatedData['email'];
+            if ($request->filled('password')) {
+                $user->password = Hash::make($validatedData['password']);
+            }
+            $user->save();
+
+            // Update data petugas
+            $petugas->update([
+                'nama' => $validatedData['nama'],
+                'no_hp' => $validatedData['no_hp'] ?? null,
+                'email' => $validatedData['email'],
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('petugas.editProfil')
+                ->with('success', 'Profil berhasil diperbarui');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal memperbarui profil: ' . $e->getMessage());
+        }
+    }
+
+    public function generatePDF($id)
+    {
+        // Ambil bulan dan tahun terakhir dari data rekam medis
+        $latestRecordDate = RekamMedisLansia::orderBy('tanggal_rekam', 'desc')->value('tanggal_rekam');
+
+        if (!$latestRecordDate) {
+            return redirect()->back()->with('error', 'Tidak ada data rekam medis tersedia.');
+        }
+
+        $latestMonth = \Carbon\Carbon::parse($latestRecordDate)->month;
+        $latestYear = \Carbon\Carbon::parse($latestRecordDate)->year;
+
+        // Ambil data rekam medis di bulan dan tahun tersebut
+        $record = RekamMedisLansia::with('pasien')
+            ->whereMonth('tanggal_rekam', $latestMonth)
+            ->whereYear('tanggal_rekam', $latestYear)
+            ->orderBy('tanggal_rekam', 'desc')
+            ->first(); // ambil salah satu rekam medis terbaru dari bulan itu
+
+        if (!$record) {
+            return redirect()->back()->with('error', 'Rekam medis bulan terakhir tidak ditemukan.');
+        }
+
+        $pasien = $record->pasien;
+
+        $pdf = Pdf::loadView('petugas.laporan-pdf', [
+            'pasien' => $pasien,
+            'record' => $record,
+        ]);
+
+        return $pdf->stream('rekam_medis_' . $pasien->nama . '.pdf');
+
     }
 }

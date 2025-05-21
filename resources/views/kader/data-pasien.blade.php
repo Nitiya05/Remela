@@ -71,24 +71,24 @@
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     <div class="flex space-x-2">
                                         <a href="{{ route('kader.data-pasien.show', $pasien) }}"
-                                           class="flex items-center bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-300 text-sm"
-                                           data-intro="Ini adalah tombol 'Lihat'. Klik di sini untuk melihat detail data pasien."
-                                           data-step="12">
-                                           <i class="fas fa-eye mr-1"></i> Lihat
+                                            class="flex items-center bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-300 text-sm"
+                                            data-intro="Ini adalah tombol 'Lihat'. Klik di sini untuk melihat detail data pasien."
+                                            data-step="12">
+                                            <i class="fas fa-eye mr-1"></i> Lihat
                                         </a>
-                                        
+
                                         <a href="{{ route('kader.data-pasien.edit', $pasien) }}"
-                                           class="flex items-center bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 transition duration-300 text-sm"
-                                           data-intro="Ini adalah tombol 'Edit'. Klik di sini untuk mengubah data pasien."
-                                           data-step="13">
-                                           <i class="fas fa-edit mr-1"></i> Edit
+                                            class="flex items-center bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 transition duration-300 text-sm"
+                                            data-intro="Ini adalah tombol 'Edit'. Klik di sini untuk mengubah data pasien."
+                                            data-step="13">
+                                            <i class="fas fa-edit mr-1"></i> Edit
                                         </a>
-                                        
+
                                         <button onclick="openModal('{{ route('kader.data-pasien.destroy', $pasien) }}')"
-                                                class="flex items-center bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition duration-300 text-sm"
-                                                data-intro="Ini adalah tombol 'Hapus'. Klik di sini untuk menghapus data pasien."
-                                                data-step="14">
-                                                <i class="fas fa-trash mr-1"></i> Hapus
+                                            class="flex items-center bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition duration-300 text-sm"
+                                            data-intro="Ini adalah tombol 'Hapus'. Klik di sini untuk menghapus data pasien."
+                                            data-step="14">
+                                            <i class="fas fa-trash mr-1"></i> Hapus
                                         </button>
                                     </div>
                                 </td>
@@ -96,6 +96,94 @@
                         @endforeach
                     </tbody>
                 </table>
+                <!-- Di bagian bawah tabel, tambahkan ini -->
+                <div
+                    class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 rounded-b-lg">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        @if ($pasiens->onFirstPage())
+                            <span
+                                class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-300 bg-white">
+                                Sebelumnya
+                            </span>
+                        @else
+                            <a href="{{ $pasiens->previousPageUrl() }}"
+                                class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Sebelumnya
+                            </a>
+                        @endif
+
+                        @if ($pasiens->hasMorePages())
+                            <a href="{{ $pasiens->nextPageUrl() }}"
+                                class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Selanjutnya
+                            </a>
+                        @else
+                            <span
+                                class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-300 bg-white">
+                                Selanjutnya
+                            </span>
+                        @endif
+                    </div>
+
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Menampilkan
+                                <span class="font-medium">{{ $pasiens->firstItem() }}</span>
+                                sampai
+                                <span class="font-medium">{{ $pasiens->lastItem() }}</span>
+                                dari
+                                <span class="font-medium">{{ $pasiens->total() }}</span>
+                                hasil
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                @if ($pasiens->onFirstPage())
+                                    <span
+                                        class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-300">
+                                        <span class="sr-only">Previous</span>
+                                        <i class="fas fa-chevron-left"></i>
+                                    </span>
+                                @else
+                                    <a href="{{ $pasiens->previousPageUrl() }}"
+                                        class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">Previous</span>
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                @endif
+
+                                @foreach ($pasiens->getUrlRange(1, $pasiens->lastPage()) as $page => $url)
+                                    @if ($page == $pasiens->currentPage())
+                                        <span aria-current="page"
+                                            class="z-10 bg-cyan-600 border-cyan-600 text-white relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                            {{ $page }}
+                                        </span>
+                                    @else
+                                        <a href="{{ $url }}"
+                                            class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                            {{ $page }}
+                                        </a>
+                                    @endif
+                                @endforeach
+
+                                @if ($pasiens->hasMorePages())
+                                    <a href="{{ $pasiens->nextPageUrl() }}"
+                                        class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                        <span class="sr-only">Next</span>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                @else
+                                    <span
+                                        class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-300">
+                                        <span class="sr-only">Next</span>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </span>
+                                @endif
+                            </nav>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -131,6 +219,47 @@
 
     <!-- JavaScript -->
     <script>
+        // Ganti event listener liveSearch dengan ini:
+        liveSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const url = new URL(window.location.href);
+
+            // Jika search kosong, hapus parameter search
+            if (searchTerm === '') {
+                url.searchParams.delete('search');
+                window.history.replaceState({}, '', url);
+            } else {
+                // Set parameter search dan tetap di halaman 1
+                url.searchParams.set('search', searchTerm);
+                url.searchParams.set('page', '1');
+                window.history.replaceState({}, '', url);
+            }
+
+            // Lakukan AJAX request untuk mendapatkan data terbaru
+            fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newTable = doc.querySelector('#patientTable');
+                    const newPagination = doc.querySelector('.bg-white.px-4.py-3');
+
+                    if (newTable) {
+                        document.querySelector('#patientTable').innerHTML = newTable.innerHTML;
+                    }
+
+                    if (newPagination) {
+                        document.querySelector('.bg-white.px-4.py-3').outerHTML = newPagination.outerHTML;
+                    }
+
+                    resetSearch.classList.toggle('hidden', searchTerm.length === 0);
+                })
+                .catch(error => console.error('Error:', error));
+        });
         document.addEventListener('DOMContentLoaded', function() {
             // Adjusted touch targets
             const interactiveElements = document.querySelectorAll('a, button, input');

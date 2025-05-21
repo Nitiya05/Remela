@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\File;
 
 class DokumentasiController extends Controller
 {
@@ -46,6 +47,12 @@ class DokumentasiController extends Controller
         }
 
         try {
+            // Buat direktori jika belum ada
+            $storagePath = storage_path('app/public/dokumentasi/foto');
+            if (!File::exists($storagePath)) {
+                File::makeDirectory($storagePath, 0755, true); // true untuk recursive
+            }
+
             $dokumentasi = Dokumentasi::create($request->only([
                 'nama_kegiatan',
                 'deskripsi',
@@ -72,7 +79,6 @@ class DokumentasiController extends Controller
         $dokumentasi = Dokumentasi::with('fotos')->findOrFail($id);
         return view('kader.dokumentasiKegiatan.edit', compact('dokumentasi'));
     }
-
 
     public function update(Request $request, $id)
     {
@@ -101,7 +107,7 @@ class DokumentasiController extends Controller
                     ->get();
 
                 foreach ($fotosToDelete as $foto) {
-                    Storage::delete('public/' . $foto->path);
+                    Storage::disk('public')->delete($foto->path);
                     $foto->delete();
                 }
             }
@@ -134,7 +140,7 @@ class DokumentasiController extends Controller
             }
 
             // Hapus file dari storage
-            Storage::delete('public/' . $foto->path);
+            Storage::disk('public')->delete($foto->path);
 
             // Hapus record dari database
             $foto->delete();
@@ -150,6 +156,7 @@ class DokumentasiController extends Controller
             ], 500);
         }
     }
+
     public function destroy($id)
     {
         $dokumentasi = Dokumentasi::with('fotos')->findOrFail($id);

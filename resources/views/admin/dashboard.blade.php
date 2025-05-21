@@ -120,9 +120,6 @@
                                 @if ($activity['type'] == 'new_users')
                                     <p class="font-medium text-gray-800">{{ $activity['count'] }} pengguna baru ditambahkan
                                         hari ini</p>
-                                @elseif($activity['type'] == 'system_update')
-                                    <p class="font-medium text-gray-800">Sistem diperbarui ke versi
-                                        {{ $activity['version'] }}</p>
                                 @elseif($activity['type'] == 'new_patients')
                                     <p class="font-medium text-gray-800">{{ $activity['count'] }} pasien baru terdaftar hari
                                         ini</p>

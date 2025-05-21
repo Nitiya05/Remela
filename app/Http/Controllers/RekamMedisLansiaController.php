@@ -15,15 +15,21 @@ class RekamMedisLansiaController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Ambil semua rekam medis beserta data pasien terkait
-        $records = RekamMedisLansia::with('pasien')->get();
+        $query = RekamMedisLansia::with('pasien');
 
-        // Ambil semua data pasien
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+            $query->whereHas('pasien', function ($q) use ($searchTerm) {
+                $q->where('nama', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('nik', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        $records = $query->paginate(20);
         $patient = Pasien::all();
 
-        // Tampilkan view dengan data yang diperlukan
         return view('kader.rekam-medis', compact('records', 'patient'));
     }
 
@@ -120,9 +126,9 @@ class RekamMedisLansiaController extends Controller
             'lingkar_perut' => 'nullable|numeric|min:10|max:200',
             'tekanan_darah_sistolik' => 'nullable|numeric|min:50|max:300',
             'tekanan_darah_diastolik' => 'nullable|numeric|min:30|max:200',
-            'gula_darah' => 'nullable|numeric|min:50|max:500',
-            'kolesterol' => 'nullable|numeric|min:50|max:500',
-            'asam_urat' => 'nullable|numeric|min:50|max:500',
+            'gula_darah' => 'nullable|numeric|min:30|max:500',
+            'kolesterol' => 'nullable|numeric|min:30|max:500',
+            'asam_urat' => 'nullable|numeric|min:1|max:20',
             'obat' => 'nullable|string',
             'tindak_lanjut' => 'nullable|string',
         ]);
@@ -192,7 +198,7 @@ class RekamMedisLansiaController extends Controller
             $gulaDarah[] = $record->gula_darah;
             $kolesterol[] = $record->kolesterol;
             $asamUrat[] = $record->asam_urat;
-            $imt[] = $record->imt;
+            $imt[] = $record->bmi;
             $lingkarPerut[] = $record->lingkar_perut;
         }
 
@@ -232,23 +238,36 @@ class RekamMedisLansiaController extends Controller
         return redirect()->route('rekam-medis-lansia.index')->with('error', 'Data tidak ditemukan');
     }
 
-    public function generatePdf() {
-       // Example: Fetch the latest record with patient data
-    $record = RekamMedisLansia::with('pasien')->latest()->first();
-    
-    // If no record exists, handle the error
-    if (!$record) {
-        return redirect()->back()->with('error', 'No records found.');
+    public function generatePdf()
+    {
+        // Ambil bulan dan tahun terakhir dari data rekam medis
+        $latestRecordDate = RekamMedisLansia::orderBy('tanggal_rekam', 'desc')->value('tanggal_rekam');
+
+        if (!$latestRecordDate) {
+            return redirect()->back()->with('error', 'Tidak ada data rekam medis tersedia.');
+        }
+
+        $latestMonth = \Carbon\Carbon::parse($latestRecordDate)->month;
+        $latestYear = \Carbon\Carbon::parse($latestRecordDate)->year;
+
+        // Ambil data rekam medis di bulan dan tahun tersebut
+        $record = RekamMedisLansia::with('pasien')
+            ->whereMonth('tanggal_rekam', $latestMonth)
+            ->whereYear('tanggal_rekam', $latestYear)
+            ->orderBy('tanggal_rekam', 'desc')
+            ->first(); // ambil salah satu rekam medis terbaru dari bulan itu
+
+        if (!$record) {
+            return redirect()->back()->with('error', 'Rekam medis bulan terakhir tidak ditemukan.');
+        }
+
+        $pasien = $record->pasien;
+
+        $pdf = Pdf::loadView('kader.rekamMedis.printpdf', [
+            'pasien' => $pasien,
+            'record' => $record,
+        ]);
+
+        return $pdf->stream('rekam_medis_' . $pasien->nama . '.pdf');
     }
-
-    $pasien = $record->pasien; // Get the patient data
-
-    $pdf = Pdf::loadView('kader.rekamMedis.printpdf', [
-        'pasien' => $pasien,
-        'record' => $record, // Pass the medical record too (optional)
-    ]);
-
-    return $pdf->stream('rekam-medis.pdf'); // Better filename
-    }
-    
 }

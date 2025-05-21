@@ -4,12 +4,25 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class AuthController extends Controller
 {
     public function showLoginForm()
     {
-        return view('auth.login');
+        if (Auth::check()) {
+            // Jika sudah login, redirect ke dashboard sesuai role
+            return redirect()->route(Auth::user()->role . '.dashboard');
+        }
+
+        // Jika belum login, tampilkan halaman login dengan no-cache
+        return response()
+            ->view('auth.login')
+            ->withHeaders([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT'
+            ]);
     }
 
     public function login(Request $request)
@@ -31,23 +44,39 @@ class AuthController extends Controller
 
         $loginField = $request->role === 'pasien' ? 'nik' : 'email';
 
-        if (Auth::attempt([$loginField => $request->$loginField, 'password' => $request->password])) {
+        if (Auth::attempt([$loginField => $request->$loginField, 'password' => $request->password, 'role' => $request->role])) {
             $request->session()->regenerate();
-            return redirect()->intended(route($request->role . '.dashboard'));
+
+            // Clear session old url
+            $request->session()->forget('url.intended');
+
+            return redirect()
+                ->intended(route($request->role . '.dashboard'))
+                ->withHeaders([
+                    'Cache-Control' => 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0',
+                    'Pragma' => 'no-cache'
+                ]);
         }
 
         return back()
             ->withInput($request->only($loginField, 'role'))
-            ->withErrors([
-                'auth' => 'NIK/Email atau password salah',
-            ]);
+            ->withErrors(['auth' => 'Kredensial tidak valid']);
     }
+
 
     public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('login');
+
+        // Redirect dengan status 303 untuk clear history browser
+        return redirect()
+            ->route('login', [], 303)  // Kode status 303
+            ->withHeaders([
+                'Cache-Control' => 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0',
+                'Pragma' => 'no-cache',
+                'Expires' => 'Sat, 01 Jan 2000 00:00:00 GMT'
+            ]);
     }
 }

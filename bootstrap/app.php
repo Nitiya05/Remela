@@ -6,12 +6,28 @@ use Illuminate\Foundation\Configuration\Middleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__.'/../routes/web.php',
-        commands: __DIR__.'/../routes/console.php',
+        web: __DIR__ . '/../routes/web.php',
+        commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Daftarkan middleware role
+        $middleware->alias([
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
+        ]);
+        
+        // Register global middleware
+        $middleware->web([
+            \App\Http\Middleware\NoCacheHeaders::class,
+            // ... middleware lainnya
+        ]);
+
+        // Atau untuk route tertentu
+        $middleware->group('auth', [
+            \Illuminate\Auth\Middleware\Authenticate::class,
+            \App\Http\Middleware\NoCacheHeaders::class,
+        ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

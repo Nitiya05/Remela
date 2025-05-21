@@ -135,15 +135,15 @@
             margin: 10px 0;
         }
 
-        .medical-history tr td:first-child {
-            font-weight: bold;
-            width: 30%;
-        }
-
         .classification {
             font-size: 10px;
             font-style: italic;
             margin-left: 5px;
+        }
+        
+        .empty-value {
+            color: #999;
+            font-style: italic;
         }
     </style>
 </head>
@@ -218,12 +218,11 @@
     </div>
 
     <!-- Current Health Status -->
-    <div class="section-title">STATUS KESEHATAN TERKINI</div>
+    <div class="section-title">STATUS PENGECEKAN KESEHATAN TERAKHIR</div>
     <div style="margin-bottom: 30px; font-size: 16px; font-family: 'Arial', sans-serif;">
         @php
             $latestRecord = $pasien->rekamMedisLansia->last();
             $isLansia = $pasien->umur >= 60; // Kriteria lansia ≥60 tahun
-            $userGender = $pasien->jenis_kelamin ?? 'Laki-laki';
         @endphp
 
         @if ($latestRecord)
@@ -243,33 +242,40 @@
                             <div style="font-size: 14px; color: #666; font-weight: normal;">(Pengukuran terkini)</div>
                         </td>
                         <td style="padding: 12px;">
-                            {{ $latestRecord->tekanan_darah_sistolik }}/{{ $latestRecord->tekanan_darah_diastolik }}
-                            mmHg
+                            @if (!is_null($latestRecord->tekanan_darah_sistolik) && !is_null($latestRecord->tekanan_darah_diastolik))
+                                {{ $latestRecord->tekanan_darah_sistolik }}/{{ $latestRecord->tekanan_darah_diastolik }} mmHg
+                            @else
+                                <span class="empty-value">Tidak ada data</span>
+                            @endif
                         </td>
                         <td style="padding: 12px;">
-                            @php
-                                // Kriteria khusus lansia
-                                if ($latestRecord->tekanan_darah_sistolik < 150 && $latestRecord->tekanan_darah_diastolik < 90) {
-                                    $status = 'status-normal';
-                                    $keterangan = 'Normal';
-                                } elseif (
-                                    ($latestRecord->tekanan_darah_sistolik >= 150 && $latestRecord->tekanan_darah_sistolik <= 159) ||
-                                    ($latestRecord->tekanan_darah_diastolik >= 90 && $latestRecord->tekanan_darah_diastolik <= 99)
-                                ) {
-                                    $status = 'status-warning';
-                                    $keterangan = 'Pra-Hipertensi';
-                                } else {
-                                    $status = 'status-danger';
-                                    $keterangan = 'Hipertensi';
-                                }
-                                $normalRange = 'Normal lansia: <150/90 mmHg';
-                            @endphp
-                            <span class="status-card {{ $status }}" style="font-size: 15px;">
-                                {{ $keterangan }}
-                            </span>
-                            <div style="font-size: 14px; color: #666; margin-top: 5px;">
-                                {{ $normalRange }}
-                            </div>
+                            @if (!is_null($latestRecord->tekanan_darah_sistolik) && !is_null($latestRecord->tekanan_darah_diastolik))
+                                @php
+                                    // Kriteria tekanan darah untuk lansia
+                                    if ($latestRecord->tekanan_darah_sistolik < 150 && $latestRecord->tekanan_darah_diastolik < 90) {
+                                        $status = 'status-normal';
+                                        $keterangan = 'Normal';
+                                    } elseif (
+                                        ($latestRecord->tekanan_darah_sistolik >= 150 && $latestRecord->tekanan_darah_sistolik <= 159) ||
+                                        ($latestRecord->tekanan_darah_diastolik >= 90 && $latestRecord->tekanan_darah_diastolik <= 99)
+                                    ) {
+                                        $status = 'status-warning';
+                                        $keterangan = 'Pra-Hipertensi';
+                                    } else {
+                                        $status = 'status-danger';
+                                        $keterangan = 'Hipertensi';
+                                    }
+                                    $normalRange = 'Normal lansia: <150/90 mmHg';
+                                @endphp
+                                <span class="status-card {{ $status }}" style="font-size: 15px;">
+                                    {{ $keterangan }}
+                                </span>
+                                <div style="font-size: 14px; color: #666; margin-top: 5px;">
+                                    {{ $normalRange }}
+                                </div>
+                            @else
+                                <span class="empty-value">Tidak dapat dievaluasi</span>
+                            @endif
                         </td>
                     </tr>
 
@@ -277,40 +283,50 @@
                     <tr style="background-color: #f5f5f5;">
                         <td style="padding: 12px; font-weight: bold; color: #00695c;">
                             Indeks Massa Tubuh
-                            <div style="font-size: 14px; color: #666; font-weight: normal;">(Berat dan Tinggi Badan)
-                            </div>
+                            <div style="font-size: 14px; color: #666; font-weight: normal;">(Berat dan Tinggi Badan)</div>
                         </td>
                         <td style="padding: 12px;">
-                            @php
-                                $tinggi_m = $latestRecord->tinggi_badan / 100;
-                                $imt = number_format($latestRecord->berat_badan / ($tinggi_m * $tinggi_m), 1);
-                                echo $imt . ' kg/m²';
-                            @endphp
+                            @if (!is_null($latestRecord->berat_badan) && !is_null($latestRecord->tinggi_badan))
+                                @php
+                                    $tinggi_m = $latestRecord->tinggi_badan / 100;
+                                    $imt = number_format($latestRecord->berat_badan / ($tinggi_m * $tinggi_m), 1);
+                                    echo $imt . ' kg/m²';
+                                @endphp
+                            @else
+                                <span class="empty-value">Tidak ada data</span>
+                            @endif
                         </td>
                         <td style="padding: 12px;">
-                            @php
-                                // Kriteria khusus lansia
-                                if ($imt < 22) {
-                                    $status = 'status-warning';
-                                    $keterangan = 'Kurus';
-                                } elseif ($imt >= 22 && $imt <= 26.9) {
-                                    $status = 'status-normal';
-                                    $keterangan = 'Normal';
-                                } elseif ($imt >= 27 && $imt <= 29.9) {
-                                    $status = 'status-warning';
-                                    $keterangan = 'Gemuk';
-                                } else {
-                                    $status = 'status-danger';
-                                    $keterangan = 'Obesitas';
-                                }
-                                $normalRange = 'Normal lansia: 22-26.9 kg/m²';
-                            @endphp
-                            <span class="status-card {{ $status }}" style="font-size: 15px;">
-                                {{ $keterangan }}
-                            </span>
-                            <div style="font-size: 14px; color: #666; margin-top: 5px;">
-                                {{ $normalRange }}
-                            </div>
+                            @if (!is_null($latestRecord->berat_badan) && !is_null($latestRecord->tinggi_badan))
+                                @php
+                                    $tinggi_m = $latestRecord->tinggi_badan / 100;
+                                    $imt = $latestRecord->berat_badan / ($tinggi_m * $tinggi_m);
+                                    
+                                    // Kriteria IMT untuk lansia
+                                    if ($imt < 22) {
+                                        $status = 'status-warning';
+                                        $keterangan = 'Kurus';
+                                    } elseif ($imt >= 22 && $imt <= 26.9) {
+                                        $status = 'status-normal';
+                                        $keterangan = 'Normal';
+                                    } elseif ($imt >= 27 && $imt <= 29.9) {
+                                        $status = 'status-warning';
+                                        $keterangan = 'Gemuk';
+                                    } else {
+                                        $status = 'status-danger';
+                                        $keterangan = 'Obesitas';
+                                    }
+                                    $normalRange = 'Normal lansia: 22-26.9 kg/m²';
+                                @endphp
+                                <span class="status-card {{ $status }}" style="font-size: 15px;">
+                                    {{ $keterangan }}
+                                </span>
+                                <div style="font-size: 14px; color: #666; margin-top: 5px;">
+                                    {{ $normalRange }}
+                                </div>
+                            @else
+                                <span class="empty-value">Tidak dapat dievaluasi</span>
+                            @endif
                         </td>
                     </tr>
 
@@ -321,32 +337,37 @@
                             <div style="font-size: 14px; color: #666; font-weight: normal;">(8 jam puasa)</div>
                         </td>
                         <td style="padding: 12px;">
-                            {{ $latestRecord->gula_darah }} mg/dL
+                            @if (!is_null($latestRecord->gula_darah))
+                                {{ $latestRecord->gula_darah }} mg/dL
+                            @else
+                                <span class="empty-value">Tidak ada data</span>
+                            @endif
                         </td>
                         <td style="padding: 12px;">
-                            @php
-                                // Kriteria untuk lansia
-                                if ($latestRecord->gula_darah < 70) {
-                                    $status = 'status-warning';
-                                    $keterangan = 'Terlalu Rendah';
-                                } elseif ($latestRecord->gula_darah >= 70 && $latestRecord->gula_darah <= 130) {
-                                    $status = 'status-normal';
-                                    $keterangan = 'Normal';
-                                } elseif ($latestRecord->gula_darah > 130 && $latestRecord->gula_darah <= 179) {
-                                    $status = 'status-warning';
-                                    $keterangan = 'Waspada';
-                                } else {
-                                    $status = 'status-danger';
-                                    $keterangan = 'Tinggi';
-                                }
-                                $normalRange = 'Normal: 70-130 mg/dL';
-                            @endphp
-                            <span class="status-card {{ $status }}" style="font-size: 15px;">
-                                {{ $keterangan }}
-                            </span>
-                            <div style="font-size: 14px; color: #666; margin-top: 5px;">
-                                {{ $normalRange }}
-                            </div>
+                            @if (!is_null($latestRecord->gula_darah))
+                                @php
+                                    // Kriteria gula darah puasa
+                                    if ($latestRecord->gula_darah >= 70 && $latestRecord->gula_darah <= 130) {
+                                        $status = 'status-normal';
+                                        $keterangan = 'Normal';
+                                    } elseif ($latestRecord->gula_darah > 130 && $latestRecord->gula_darah <= 179) {
+                                        $status = 'status-warning';
+                                        $keterangan = 'Waspada';
+                                    } else {
+                                        $status = 'status-danger';
+                                        $keterangan = 'Tinggi';
+                                    }
+                                    $normalRange = 'Normal: 70-130 mg/dL';
+                                @endphp
+                                <span class="status-card {{ $status }}" style="font-size: 15px;">
+                                    {{ $keterangan }}
+                                </span>
+                                <div style="font-size: 14px; color: #666; margin-top: 5px;">
+                                    {{ $normalRange }}
+                                </div>
+                            @else
+                                <span class="empty-value">Tidak dapat dievaluasi</span>
+                            @endif
                         </td>
                     </tr>
 
@@ -356,29 +377,37 @@
                             Kolesterol Total
                         </td>
                         <td style="padding: 12px;">
-                            {{ $latestRecord->kolesterol }} mg/dL
+                            @if (!is_null($latestRecord->kolesterol))
+                                {{ $latestRecord->kolesterol }} mg/dL
+                            @else
+                                <span class="empty-value">Tidak ada data</span>
+                            @endif
                         </td>
                         <td style="padding: 12px;">
-                            @php
-                                // Kriteria untuk lansia
-                                if ($latestRecord->kolesterol < 200) {
-                                    $status = 'status-normal';
-                                    $keterangan = 'Normal';
-                                } elseif ($latestRecord->kolesterol >= 200 && $latestRecord->kolesterol <= 239) {
-                                    $status = 'status-warning';
-                                    $keterangan = 'Batas Tinggi';
-                                } else {
-                                    $status = 'status-danger';
-                                    $keterangan = 'Tinggi';
-                                }
-                                $normalRange = 'Normal: <200 mg/dL';
-                            @endphp
-                            <span class="status-card {{ $status }}" style="font-size: 15px;">
-                                {{ $keterangan }}
-                            </span>
-                            <div style="font-size: 14px; color: #666; margin-top: 5px;">
-                                {{ $normalRange }}
-                            </div>
+                            @if (!is_null($latestRecord->kolesterol))
+                                @php
+                                    // Kriteria kolesterol
+                                    if ($latestRecord->kolesterol < 200) {
+                                        $status = 'status-normal';
+                                        $keterangan = 'Normal';
+                                    } elseif ($latestRecord->kolesterol >= 200 && $latestRecord->kolesterol <= 239) {
+                                        $status = 'status-warning';
+                                        $keterangan = 'Batas Tinggi';
+                                    } else {
+                                        $status = 'status-danger';
+                                        $keterangan = 'Tinggi';
+                                    }
+                                    $normalRange = 'Normal: <200 mg/dL';
+                                @endphp
+                                <span class="status-card {{ $status }}" style="font-size: 15px;">
+                                    {{ $keterangan }}
+                                </span>
+                                <div style="font-size: 14px; color: #666; margin-top: 5px;">
+                                    {{ $normalRange }}
+                                </div>
+                            @else
+                                <span class="empty-value">Tidak dapat dievaluasi</span>
+                            @endif
                         </td>
                     </tr>
 
@@ -386,41 +415,41 @@
                     <tr>
                         <td style="padding: 12px; font-weight: bold; color: #00695c;">
                             Lingkar Perut
-                            <div style="font-size: 14px; color: #666; font-weight: normal;">(Ukuran risiko metabolik)
-                            </div>
+                            <div style="font-size: 14px; color: #666; font-weight: normal;">(Ukuran risiko metabolik)</div>
                         </td>
                         <td style="padding: 12px;">
-                            {{ $latestRecord->lingkar_perut }} cm
+                            @if (!is_null($latestRecord->lingkar_perut))
+                                {{ $latestRecord->lingkar_perut }} cm
+                            @else
+                                <span class="empty-value">Tidak ada data</span>
+                            @endif
                         </td>
                         <td style="padding: 12px;">
-                            @php
-                                // Kriteria untuk lansia
-                                if ($userGender == 'Laki-laki') {
-                                    if ($latestRecord->lingkar_perut < 90) {
+                            @if (!is_null($latestRecord->lingkar_perut))
+                                @php
+                                    $jenis_kelamin = $pasien->jenis_kelamin;
+                                    // Kriteria lingkar perut
+                                    if (
+                                        ($jenis_kelamin == 'L' && $latestRecord->lingkar_perut < 90) ||
+                                        ($jenis_kelamin == 'P' && $latestRecord->lingkar_perut < 80)
+                                    ) {
                                         $status = 'status-normal';
                                         $keterangan = 'Normal';
                                     } else {
                                         $status = 'status-danger';
                                         $keterangan = 'Berisiko';
                                     }
-                                    $normalRange = 'Normal: <90 cm';
-                                } else {
-                                    if ($latestRecord->lingkar_perut < 80) {
-                                        $status = 'status-normal';
-                                        $keterangan = 'Normal';
-                                    } else {
-                                        $status = 'status-danger';
-                                        $keterangan = 'Berisiko';
-                                    }
-                                    $normalRange = 'Normal: <80 cm';
-                                }
-                            @endphp
-                            <span class="status-card {{ $status }}" style="font-size: 15px;">
-                                {{ $keterangan }}
-                            </span>
-                            <div style="font-size: 14px; color: #666; margin-top: 5px;">
-                                {{ $normalRange }}
-                            </div>
+                                    $normalRange = $jenis_kelamin == 'L' ? 'Normal: <90 cm' : 'Normal: <80 cm';
+                                @endphp
+                                <span class="status-card {{ $status }}" style="font-size: 15px;">
+                                    {{ $keterangan }}
+                                </span>
+                                <div style="font-size: 14px; color: #666; margin-top: 5px;">
+                                    {{ $normalRange }}
+                                </div>
+                            @else
+                                <span class="empty-value">Tidak dapat dievaluasi</span>
+                            @endif
                         </td>
                     </tr>
 
@@ -430,37 +459,38 @@
                             Asam Urat
                         </td>
                         <td style="padding: 12px;">
-                            {{ $latestRecord->asam_urat }} mg/dL
+                            @if (!is_null($latestRecord->asam_urat))
+                                {{ $latestRecord->asam_urat }} mg/dL
+                            @else
+                                <span class="empty-value">Tidak ada data</span>
+                            @endif
                         </td>
                         <td style="padding: 12px;">
-                            @php
-                                // Kriteria untuk lansia
-                                if ($userGender == 'Laki-laki') {
-                                    if ($latestRecord->asam_urat < 7.0) {
+                            @if (!is_null($latestRecord->asam_urat))
+                                @php
+                                    $jenis_kelamin = $pasien->jenis_kelamin;
+                                    // Kriteria asam urat
+                                    if (
+                                        ($jenis_kelamin == 'L' && $latestRecord->asam_urat < 7.0) ||
+                                        ($jenis_kelamin == 'P' && $latestRecord->asam_urat < 6.0)
+                                    ) {
                                         $status = 'status-normal';
                                         $keterangan = 'Normal';
                                     } else {
                                         $status = 'status-danger';
                                         $keterangan = 'Tinggi';
                                     }
-                                    $normalRange = 'Normal: <7.0 mg/dL';
-                                } else {
-                                    if ($latestRecord->asam_urat < 6.0) {
-                                        $status = 'status-normal';
-                                        $keterangan = 'Normal';
-                                    } else {
-                                        $status = 'status-danger';
-                                        $keterangan = 'Tinggi';
-                                    }
-                                    $normalRange = 'Normal: <6.0 mg/dL';
-                                }
-                            @endphp
-                            <span class="status-card {{ $status }}" style="font-size: 15px;">
-                                {{ $keterangan }}
-                            </span>
-                            <div style="font-size: 14px; color: #666; margin-top: 5px;">
-                                {{ $normalRange }}
-                            </div>
+                                    $normalRange = $jenis_kelamin == 'L' ? 'Normal: <7.0 mg/dL' : 'Normal: <6.0 mg/dL';
+                                @endphp
+                                <span class="status-card {{ $status }}" style="font-size: 15px;">
+                                    {{ $keterangan }}
+                                </span>
+                                <div style="font-size: 14px; color: #666; margin-top: 5px;">
+                                    {{ $normalRange }}
+                                </div>
+                            @else
+                                <span class="empty-value">Tidak dapat dievaluasi</span>
+                            @endif
                         </td>
                     </tr>
                 </tbody>
@@ -474,24 +504,22 @@
         @endif
     </div>
 
+    <!-- Keterangan Status -->
     <div style="font-size: 16px; font-family: Arial, sans-serif; 
             display: flex; align-items: center; gap: 10px;
             white-space: nowrap; flex-wrap: nowrap; overflow-x: auto;">
         <span>Keterangan Status:</span>
-        
         <div style="display: flex; align-items: center; gap: 15px; flex-shrink: 0;">
             <div style="display: flex; align-items: center; flex-shrink: 0;">
                 <span style="display: inline-block; width: 16px; height: 16px; border-radius: 50%; 
                        background-color: #4CAF50; margin-right: 6px; flex-shrink: 0;"></span>
                 <span style="flex-shrink: 0;">Normal</span>
             </div>
-            
             <div style="display: flex; align-items: center; flex-shrink: 0;">
                 <span style="display: inline-block; width: 16px; height: 16px; border-radius: 50%; 
                        background-color: #FFC107; margin-right: 6px; flex-shrink: 0;"></span>
                 <span style="flex-shrink: 0;">Perlu Evaluasi</span>
             </div>
-            
             <div style="display: flex; align-items: center; flex-shrink: 0;">
                 <span style="display: inline-block; width: 16px; height: 16px; border-radius: 50%; 
                        background-color: #F44336; margin-right: 6px; flex-shrink: 0;"></span>
@@ -509,11 +537,11 @@
                     <th>Tanggal</th>
                     <th>Berat Badan (kg)</th>
                     <th>Tinggi Badan (cm)</th>
-                    <th>IMT (kg/m2) </th>
-                    <th>Tekanan Darah (mmHg) </th>
+                    <th>IMT (kg/m2)</th>
+                    <th>Tekanan Darah (mmHg)</th>
                     <th>Gula Darah (mg/dL)</th>
                     <th>Kolesterol (mg/dL)</th>
-                    <th>Asam Urat (mg/dL) </th>
+                    <th>Asam Urat (mg/dL)</th>
                     <th>Lingkar Perut (cm)</th>
                 </tr>
             </thead>
@@ -521,19 +549,29 @@
                 @foreach ($pasien->rekamMedisLansia->sortByDesc('tanggal_rekam') as $item)
                     <tr>
                         <td>{{ \Carbon\Carbon::parse($item->tanggal_rekam)->format('d M Y') }}</td>
-                        <td>{{ $item->berat_badan }}</td>
-                        <td>{{ $item->tinggi_badan }}</td>
+                        <td>{{ $item->berat_badan ?? '-' }}</td>
+                        <td>{{ $item->tinggi_badan ?? '-' }}</td>
                         <td>
-                            @php
-                                $tinggi_m = $item->tinggi_badan / 100;
-                                echo number_format($item->berat_badan / ($tinggi_m * $tinggi_m), 1);
-                            @endphp
+                            @if (!is_null($item->berat_badan) && !is_null($item->tinggi_badan))
+                                @php
+                                    $tinggi_m = $item->tinggi_badan / 100;
+                                    echo number_format($item->berat_badan / ($tinggi_m * $tinggi_m), 1);
+                                @endphp
+                            @else
+                                -
+                            @endif
                         </td>
-                        <td>{{ $item->tekanan_darah_sistolik }}/{{ $item->tekanan_darah_diastolik }}</td>
-                        <td>{{ $item->gula_darah }}</td>
-                        <td>{{ $item->kolesterol }}</td>
-                        <td>{{ $item->asam_urat }}</td>
-                        <td>{{ $item->lingkar_perut }}</td>
+                        <td>
+                            @if (!is_null($item->tekanan_darah_sistolik) && !is_null($item->tekanan_darah_diastolik))
+                                {{ $item->tekanan_darah_sistolik }}/{{ $item->tekanan_darah_diastolik }}
+                            @else
+                                -
+                            @endif
+                        </td>
+                        <td>{{ $item->gula_darah ?? '-' }}</td>
+                        <td>{{ $item->kolesterol ?? '-' }}</td>
+                        <td>{{ $item->asam_urat ?? '-' }}</td>
+                        <td>{{ $item->lingkar_perut ?? '-' }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -569,7 +607,6 @@
                 <td style="font-weight: bold;">Konsumsi Obat</td>
                 <td>{{ $latestRecord->obat ?? '-' }}</td>
             </tr>
-
             <tr>
                 <td style="font-weight: bold;">Catatan Petugas</td>
                 <td>{{ $latestRecord->catatan_petugas ?? '-' }}</td>

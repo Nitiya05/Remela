@@ -11,8 +11,8 @@ class JadwalController extends Controller
     public function index()
     {
         $kader = Auth::user();
-        $jadwal = Jadwal::orderBy('tanggal', 'asc')->get();
-        return view('kader.jadwal', compact('kader','jadwal'));
+        $jadwal = Jadwal::orderBy('tanggal', 'asc')->paginate(10); // 10 items per page
+        return view('kader.jadwal', compact('kader', 'jadwal'));
     }
 
     public function create()

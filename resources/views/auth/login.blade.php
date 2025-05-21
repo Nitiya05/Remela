@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,12 +17,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0, 0, 0, 0.5);
             z-index: 1000;
             justify-content: center;
             align-items: center;
             animation: fadeIn 0.3s ease-out;
         }
+
         .modal-content {
             background: white;
             padding: 1.5rem;
@@ -32,14 +34,29 @@
             transform: translateY(0);
             animation: slideUp 0.3s ease-out;
         }
+
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
+
         @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
+
         .input-icon {
             background-color: #3b82f6;
             color: white;
@@ -48,41 +65,56 @@
             justify-content: center;
             width: 3rem;
         }
+
         .form-container {
             transition: all 0.3s ease;
         }
+
         /* Animasi untuk modal bantuan */
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
+
         .animate-fadeIn {
             animation: fadeIn 0.3s ease-out;
         }
+
         /* Custom styling untuk Intro.js */
         .introjs-custom .introjs-tooltip-title {
             color: #0369a1;
         }
+
         .introjs-custom .introjs-tooltiptext {
             max-width: 350px;
         }
+
         .introjs-custom .introjs-button {
             background-color: #0ea5e9;
             color: white;
             text-shadow: none;
             border-radius: 0.375rem;
         }
+
         .introjs-custom .introjs-button:hover {
             background-color: #0284c7;
         }
+
         .introjs-custom .introjs-skipbutton {
             color: #64748b;
         }
+
         .introjs-highlight {
             border-radius: 0.5rem;
         }
     </style>
 </head>
+
 <body class="min-h-screen bg-gradient-to-br from-sky-50 to-sky-100 flex flex-col">
     <!-- Error Modal -->
     <div id="error-modal" class="error-modal">
@@ -97,12 +129,13 @@
                 </button>
             </div>
             <p id="error-message" class="text-gray-700 mb-4">
-                @if($errors->has('auth'))
+                @if ($errors->has('auth'))
                     {{ $errors->first('auth') }}
                 @endif
             </p>
             <div class="flex justify-end">
-                <button onclick="closeModal()" class="px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-800 transition-colors">
+                <button onclick="closeModal()"
+                    class="px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-800 transition-colors">
                     Tutup
                 </button>
             </div>
@@ -115,14 +148,16 @@
                 <h1 class="text-2xl font-bold">Formulir Masuk</h1>
                 <p class="mt-1 text-sky-100">Silakan masuk untuk melanjutkan</p>
             </div>
-            
+
             <form id="login-form" action="{{ route('login') }}" method="POST" class="p-6 space-y-4">
                 @csrf
-                
+
                 <!-- Role Selection -->
                 <div>
                     <label for="role" class="block text-gray-700 font-medium mb-2">Masuk Sebagai</label>
-                    <select id="role" name="role" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-200 focus:border-sky-500 transition-all" onchange="toggleInputType()">
+                    <select id="role" name="role"
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-200 focus:border-sky-500 transition-all"
+                        onchange="toggleInputType()">
                         <option value="">Pilih peran</option>
                         <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                         <option value="pasien" {{ old('role') == 'pasien' ? 'selected' : '' }}>Pasien</option>
@@ -136,14 +171,16 @@
 
                 <!-- Dynamic Input Field -->
                 <div id="input-container">
-                    @if(old('role') === 'pasien')
+                    @if (old('role') === 'pasien')
                         <div>
                             <label for="nik" class="block text-gray-700 font-medium mb-2">NIK</label>
-                            <div class="flex rounded-lg overflow-hidden border border-gray-300 focus-within:ring-2 focus-within:ring-sky-200 focus-within:border-sky-500 transition-all">
+                            <div
+                                class="flex rounded-lg overflow-hidden border border-gray-300 focus-within:ring-2 focus-within:ring-sky-200 focus-within:border-sky-500 transition-all">
                                 <span class="input-icon">
                                     <i class="fas fa-id-card"></i>
                                 </span>
-                                <input type="text" id="nik" name="nik" value="{{ old('nik') }}" class="flex-grow p-3 outline-none" maxlength="16" placeholder="Masukkan NIK">
+                                <input type="text" id="nik" name="nik" value="{{ old('nik') }}"
+                                    class="flex-grow p-3 outline-none" maxlength="16" placeholder="Masukkan NIK">
                             </div>
                             @error('nik')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -152,11 +189,13 @@
                     @else
                         <div>
                             <label for="email" class="block text-gray-700 font-medium mb-2">Email</label>
-                            <div class="flex rounded-lg overflow-hidden border border-gray-300 focus-within:ring-2 focus-within:ring-sky-200 focus-within:border-sky-500 transition-all">
+                            <div
+                                class="flex rounded-lg overflow-hidden border border-gray-300 focus-within:ring-2 focus-within:ring-sky-200 focus-within:border-sky-500 transition-all">
                                 <span class="input-icon">
                                     <i class="fas fa-envelope"></i>
                                 </span>
-                                <input type="email" id="email" name="email" value="{{ old('email') }}" class="flex-grow p-3 outline-none" placeholder="Masukkan Email">
+                                <input type="email" id="email" name="email" value="{{ old('email') }}"
+                                    class="flex-grow p-3 outline-none" placeholder="Masukkan Email">
                             </div>
                             @error('email')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -168,12 +207,15 @@
                 <!-- Password Field -->
                 <div>
                     <label for="password" class="block text-gray-700 font-medium mb-2">Kata Sandi</label>
-                    <div class="flex rounded-lg overflow-hidden border border-gray-300 focus-within:ring-2 focus-within:ring-sky-200 focus-within:border-sky-500 transition-all">
+                    <div
+                        class="flex rounded-lg overflow-hidden border border-gray-300 focus-within:ring-2 focus-within:ring-sky-200 focus-within:border-sky-500 transition-all">
                         <span class="input-icon">
                             <i class="fas fa-lock"></i>
                         </span>
-                        <input type="password" id="password" name="password" class="flex-grow p-3 outline-none" placeholder="Masukkan Kata Sandi">
-                        <button type="button" onclick="togglePassword()" class="px-4 text-gray-500 hover:text-sky-500 transition-colors">
+                        <input type="password" id="password" name="password" class="flex-grow p-3 outline-none"
+                            placeholder="Masukkan Kata Sandi">
+                        <button type="button" onclick="togglePassword()"
+                            class="px-4 text-gray-500 hover:text-sky-500 transition-colors">
                             <i id="eye-icon" class="fas fa-eye"></i>
                         </button>
                     </div>
@@ -185,23 +227,27 @@
                 <!-- Remember Me & Forgot Password -->
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
-                        <input type="checkbox" id="show-password" onclick="togglePassword()" class="h-4 w-4 text-sky-500 focus:ring-sky-400 border-gray-300 rounded">
+                        <input type="checkbox" id="show-password" onclick="togglePassword()"
+                            class="h-4 w-4 text-sky-500 focus:ring-sky-400 border-gray-300 rounded">
                         <label for="show-password" class="ml-2 text-gray-600">Tampilkan Kata Sandi</label>
                     </div>
-                    <button type="button" onclick="showHelpModal()" class="text-sm text-sky-600 hover:text-sky-800 hover:underline">
+                    <button type="button" onclick="showHelpModal()"
+                        class="text-sm text-sky-600 hover:text-sky-800 hover:underline">
                         Bantuan Masuk?
                     </button>
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 transform hover:scale-[1.01]">
+                <button type="submit"
+                    class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 transform hover:scale-[1.01]">
                     Masuk
                 </button>
             </form>
 
             <!-- Link untuk memulai tur lagi -->
             <div class="px-6 pb-6 text-center">
-                <button onclick="startIntroTour()" class="text-sm text-gray-500 hover:text-sky-600 flex items-center justify-center mx-auto">
+                <button onclick="startIntroTour()"
+                    class="text-sm text-gray-500 hover:text-sky-600 flex items-center justify-center mx-auto">
                     <i class="fas fa-question-circle mr-2"></i> Butuh panduan menggunakan formulir masuk?
                 </button>
             </div>
@@ -214,10 +260,10 @@
 
     <!-- Intro.js Script -->
     <script src="https://cdn.jsdelivr.net/npm/intro.js@7.0.1/minified/intro.min.js"></script>
-    
+
     <script>
         // Tampilkan modal jika ada error auth
-        @if($errors->has('auth'))
+        @if ($errors->has('auth'))
             document.addEventListener('DOMContentLoaded', function() {
                 showErrorModal("{{ $errors->first('auth') }}");
             });
@@ -228,7 +274,7 @@
             const passwordField = document.getElementById("password");
             const eyeIcon = document.getElementById("eye-icon");
             const showPasswordCheckbox = document.getElementById("show-password");
-            
+
             if (passwordField.type === "password") {
                 passwordField.type = "text";
                 eyeIcon.classList.remove("fa-eye");
@@ -246,7 +292,7 @@
         function toggleInputType() {
             const role = document.getElementById("role").value;
             const inputContainer = document.getElementById("input-container");
-            
+
             if (role === "pasien") {
                 inputContainer.innerHTML = `
                     <div>
@@ -278,10 +324,10 @@
         function showErrorModal(message) {
             const modal = document.getElementById('error-modal');
             const errorMessage = document.getElementById('error-message');
-            
+
             errorMessage.textContent = message;
             modal.style.display = 'flex';
-            
+
             // Tutup modal setelah 5 detik
             setTimeout(() => {
                 closeModal();
@@ -301,10 +347,9 @@
         // Fungsi untuk memulai tur pengantar
         function startIntroTour() {
             const intro = introJs();
-            
+
             intro.setOptions({
-                steps: [
-                    {
+                steps: [{
                         element: document.querySelector('.bg-gradient-to-r.from-sky-500.to-sky-600'),
                         intro: "<div class='text-center'><h3 class='text-lg font-bold mb-2'>Selamat Datang di REMELA</h3><p>Sistem Informasi Posyandu Terintegrasi</p></div>",
                         position: 'bottom'
@@ -339,9 +384,9 @@
                 tooltipClass: 'introjs-custom',
                 highlightClass: 'introjs-highlight'
             });
-            
+
             intro.start();
-            
+
             // Set flag di localStorage bahwa tur sudah ditampilkan
             localStorage.setItem('loginIntroShown', 'true');
         }
@@ -393,17 +438,18 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Cek apakah ini pertama kali pengguna mengunjungi halaman Masuk
             const firstVisit = !localStorage.getItem('loginIntroShown');
-            
+
             if (firstVisit) {
                 setTimeout(() => {
                     startIntroTour();
                 }, 1000);
             }
-            
+
             // Tambahkan tombol bantuan di pojok kanan bawah
             const helpButton = document.createElement('button');
             helpButton.id = 'help-button';
-            helpButton.className = 'fixed bottom-6 right-6 bg-sky-500 hover:bg-sky-600 text-white p-3 rounded-full shadow-lg transition-all z-50';
+            helpButton.className =
+                'fixed bottom-6 right-6 bg-sky-500 hover:bg-sky-600 text-white p-3 rounded-full shadow-lg transition-all z-50';
             helpButton.innerHTML = '<i class="fas fa-question text-xl"></i>';
             helpButton.title = 'Bantuan Masuk';
             helpButton.onclick = function() {
@@ -411,6 +457,14 @@
             };
             document.body.appendChild(helpButton);
         });
+
+        @if (session('just_logged_out'))
+            <
+            script >
+                history.replaceState(null, null, '{{ url('/') }}'); // Ganti history dengan home
+    </script>
+    @endif
     </script>
 </body>
+
 </html>
